@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.local
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+dist/
+build/
+.DS_Store
+*.log
+.vite/
+coverage/
+.idea/
+.vscode/
+.omc/
