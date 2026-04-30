@@ -8,19 +8,21 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm-run-all --parallel dev:backend dev:frontend",
-    "dev:backend": "npm --workspace apps/backend run dev",
-    "dev:frontend": "npm --workspace apps/frontend run dev",
-    "build": "npm --workspace apps/frontend run build",
-    "start": "npm --workspace apps/backend run start",
-    "test": "npm-run-all test:backend test:frontend",
-    "test:backend": "npm --workspace apps/backend run test",
-    "test:frontend": "npm --workspace apps/frontend run test",
-    "lint": "npm --workspace apps/frontend run lint",
-    "format": "prettier --write '**/*.{ts,tsx,js,json,md,css,html}'"
+    "dev": "bun run --filter '*' dev",
+    "dev:backend": "bun run --filter food-delivery-backend dev",
+    "dev:frontend": "bun run --filter food-delivery-frontend dev",
+    "build": "bun run --filter food-delivery-frontend build",
+    "start": "bun run --filter food-delivery-backend start",
+    "test": "bun run --filter food-delivery-backend test && bun run --filter food-delivery-frontend test",
+    "test:backend": "bun run --filter food-delivery-backend test",
+    "test:frontend": "bun run --filter food-delivery-frontend test",
+    "lint": "bun run --filter food-delivery-frontend lint",
+    "format": "prettier --write '**/*.{ts,tsx,js,json,md,css,html}'",
+    "db:generate": "bun run --filter food-delivery-backend db:generate",
+    "db:migrate": "bun run --filter food-delivery-backend db:migrate",
+    "db:push": "bun run --filter food-delivery-backend db:push"
   },
   "devDependencies": {
-    "npm-run-all": "^4.1.5",
     "prettier": "^3.3.3"
   }
 }
