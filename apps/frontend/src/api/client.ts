@@ -2,7 +2,7 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuthStore } from '@/store/authStore';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL ?? '/api';
+const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api';
 
 export const api = axios.create({
   baseURL,
@@ -26,14 +26,8 @@ api.interceptors.response.use(
   (r) => r,
   (error) => {
     if (error.response?.status === 401) {
-      // Do NOT logout on 401 for auth endpoints — signup/login with bad creds
-      // should surface the error, not blow away existing session state.
-      const url: string = error.config?.url ?? '';
-      const isAuthCall = url.startsWith('/auth/') || url.startsWith('auth/');
-      if (!isAuthCall) {
-        const { token, logout } = useAuthStore.getState();
-        if (token) logout();
-      }
+      const { token, logout } = useAuthStore.getState();
+      if (token) logout();
     }
     return Promise.reject(error);
   },
