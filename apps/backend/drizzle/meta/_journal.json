@@ -8,6 +8,13 @@
       "when": 1777553515570,
       "tag": "0000_stormy_texas_twister",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777562201142,
+      "tag": "0001_giant_nextwave",
+      "breakpoints": true
     }
   ]
 }

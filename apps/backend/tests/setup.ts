@@ -43,8 +43,8 @@ export async function request(path: string, init?: RequestInit) {
 }
 
 // Helper: clean mutable database tables between tests
-// Preserves seeded data (menu_items, promos) and user/session tables
-// (managed by better-auth).
+// Preserves seeded data (menu_items, promos). Cleans auth tables
+// (user, session, account, verification) for isolated auth tests.
 export async function cleanDb() {
   const { getDb, schema } = await import('../src/db');
   const db = getDb();
@@ -52,4 +52,8 @@ export async function cleanDb() {
   await db.delete(schema.orders).execute();
   await db.delete(schema.deliveryAddresses).execute();
   await db.delete(schema.ratings).execute();
+  await db.delete(schema.verification).execute();
+  await db.delete(schema.session).execute();
+  await db.delete(schema.account).execute();
+  await db.delete(schema.user).execute();
 }
