@@ -2,7 +2,7 @@
   "name": "sqa-food-delivery",
   "version": "1.0.0",
   "private": true,
-  "description": "Simple Food Delivery App — Monorepo (Express + SQLite backend, React + Vite frontend)",
+  "description": "Simple Food Delivery App — Monorepo (Elysia + PostgreSQL backend, React + Vite frontend)",
   "workspaces": [
     "apps/*",
     "packages/*"
