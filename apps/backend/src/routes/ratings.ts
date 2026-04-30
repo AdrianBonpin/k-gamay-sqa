@@ -18,6 +18,19 @@ const authGuard = new Elysia().derive(async ({ request, set }) => {
 });
 
 export const ratingsRoutes = new Elysia({ prefix: '/api/ratings' })
+  // Public routes
+  .get('/summary', async () => {
+    const total = await getTotalRatingsCount();
+    return { total };
+  })
+  .get('/:menuId', async ({ params }) => {
+    const menuId = Number(params.menuId);
+    const summary = await getRatingSummary(menuId);
+    const ratings = await listRatingsForItem(menuId);
+    return { summary, ratings };
+  })
+  // Protected routes
+  .use(authGuard)
   .post(
     '/',
     async ({ body, user }) => {
@@ -30,7 +43,6 @@ export const ratingsRoutes = new Elysia({ prefix: '/api/ratings' })
       return { rating };
     },
     {
-      beforeHandle: authGuard,
       body: t.Object({
         menuId: t.Number({ minimum: 1, integer: true }),
         stars: t.Number({ minimum: 1, maximum: 5, integer: true }),
@@ -38,22 +50,8 @@ export const ratingsRoutes = new Elysia({ prefix: '/api/ratings' })
       }),
     },
   )
-  .get('/summary', async () => {
-    const total = await getTotalRatingsCount();
-    return { total };
-  })
-  .get('/:menuId', async ({ params }) => {
+  .get('/:menuId/mine', async ({ params, user }) => {
     const menuId = Number(params.menuId);
-    const summary = await getRatingSummary(menuId);
-    const ratings = await listRatingsForItem(menuId);
-    return { summary, ratings };
-  })
-  .get(
-    '/:menuId/mine',
-    async ({ params, user }) => {
-      const menuId = Number(params.menuId);
-      const rating = await getMyRating(user.id, menuId);
-      return { rating };
-    },
-    { beforeHandle: authGuard },
-  );
+    const rating = await getMyRating(user.id, menuId);
+    return { rating };
+  });
