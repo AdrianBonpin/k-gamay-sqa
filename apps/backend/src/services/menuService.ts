@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../db';
 
 export async function listMenuItems() {
@@ -32,7 +32,7 @@ async function getRatingSummariesForMenuIds(ids: number[]) {
       count: sql<number>`count(*)::int`,
     })
     .from(schema.ratings)
-    .where(sql`${schema.ratings.menuId} = any(${ids})`)
+    .where(inArray(schema.ratings.menuId, ids))
     .groupBy(schema.ratings.menuId);
 
   const map = new Map<number, { menuId: number; average: number; count: number }>();

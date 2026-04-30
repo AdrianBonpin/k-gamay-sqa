@@ -25,16 +25,23 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
           password: body.password as string,
           name: body.name as string,
         },
+        asResponse: true,
       });
-      if (!result?.user || !result?.token) {
+      // Forward the session cookie from better-auth
+      const setCookie = result.headers.get('set-cookie');
+      if (setCookie) {
+        set.headers['set-cookie'] = setCookie;
+      }
+      const json = await result.json();
+      if (!json?.user || !json?.token) {
         throw new HttpError(400, 'SIGNUP_FAILED', 'Signup failed');
       }
       return {
-        token: result.token,
+        token: json.token,
         user: {
-          id: result.user.id,
-          email: result.user.email,
-          name: result.user.name,
+          id: json.user.id,
+          email: json.user.email,
+          name: json.user.name,
         },
       };
     },
@@ -48,7 +55,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
   )
   .post(
     '/login',
-    async ({ body }) => {
+    async ({ body, set }) => {
       let result;
       try {
         result = await auth.api.signInEmail({
@@ -56,19 +63,26 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
             email: body.email as string,
             password: body.password as string,
           },
+          asResponse: true,
         });
       } catch {
         throw new HttpError(401, 'AUTH_INVALID_CREDENTIALS', 'Invalid credentials');
       }
-      if (!result?.user || !result?.token) {
+      // Forward the session cookie from better-auth
+      const setCookie = result.headers.get('set-cookie');
+      if (setCookie) {
+        set.headers['set-cookie'] = setCookie;
+      }
+      const json = await result.json();
+      if (!json?.user || !json?.token) {
         throw new HttpError(401, 'AUTH_INVALID_CREDENTIALS', 'Invalid credentials');
       }
       return {
-        token: result.token,
+        token: json.token,
         user: {
-          id: result.user.id,
-          email: result.user.email,
-          name: result.user.name,
+          id: json.user.id,
+          email: json.user.email,
+          name: json.user.name,
         },
       };
     },
