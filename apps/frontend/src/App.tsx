@@ -18,6 +18,7 @@ import { About } from '@/pages/About';
 import { Help } from '@/pages/Help';
 import { Privacy } from '@/pages/Privacy';
 import { NotFound } from '@/pages/NotFound';
+import { Manage } from '@/pages/Manage';
 
 interface RouteDef {
   path: string;
@@ -52,6 +53,7 @@ export default function App() {
 
       <main className="flex-1">
         <Routes>
+          <Route path="/manage" element={<Manage />} />
           {ROUTES.map((r) => {
             const wrapped = <PageShell>{r.element}</PageShell>;
             const finalElement = r.protected ? <ProtectedRoute>{wrapped}</ProtectedRoute> : wrapped;

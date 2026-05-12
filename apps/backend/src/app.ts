@@ -7,6 +7,7 @@ import { menuRoutes } from './routes/menu';
 import { ordersRoutes } from './routes/orders';
 import { promoRoutes } from './routes/promo';
 import { ratingsRoutes } from './routes/ratings';
+import { manageRoutes } from './routes/manage';
 import { globalRateLimit, authRateLimit } from './middleware/rateLimit';
 import { requestIdPlugin } from './middleware/requestId';
 import { HttpError } from './lib/errors';
@@ -39,6 +40,8 @@ export function createApp() {
     .use(ordersRoutes)
     .use(promoRoutes)
     .use(ratingsRoutes)
+    // Management panel
+    .use(manageRoutes)
     // In production, serve the built frontend SPA from ../frontend/dist
     .use(serveFrontend)
     // 404
