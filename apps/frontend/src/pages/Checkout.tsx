@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, MapPin, Phone, User as UserIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { placeOrder } from '@/api/orders';
@@ -26,13 +26,12 @@ export function Checkout() {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [confirmed, setConfirmed] = useState<{ id: number; total: number } | null>(null);
 
   useEffect(() => {
-    if (!confirmed && items.length === 0) {
+    if (items.length === 0) {
       navigate('/cart', { replace: true });
     }
-  }, [items.length, confirmed, navigate]);
+  }, [items.length, navigate]);
 
   const sub = subtotal();
 
@@ -53,66 +52,15 @@ export function Checkout() {
           phone: phone.trim(),
         },
       });
-      // Server-confirmed total (use cents if provided, else dollars).
-      const serverTotal = typeof res.totalCents === 'number' ? res.totalCents / 100 : res.total;
-      setConfirmed({ id: res.orderId, total: serverTotal });
       clear();
       toast.success('Order placed!');
+      navigate(`/orders/${res.orderId}`, { replace: true });
     } catch (err) {
       toast.error(extractError(err, 'Failed to place order'));
     } finally {
       setSubmitting(false);
     }
   };
-
-  if (confirmed) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 md:px-8 py-16 text-center">
-        <div className="success-check mx-auto grid h-28 w-28 place-items-center rounded-full bg-gradient-hero text-white shadow-glow">
-          {/* Animated SVG checkmark: stroke-dasharray reveal */}
-          <svg
-            viewBox="0 0 64 64"
-            className="h-20 w-20"
-            aria-hidden
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="32" cy="32" r="26" />
-            <path d="M20 33 L29 42 L45 24" />
-          </svg>
-        </div>
-        <div className="animate-fadein" style={{ animationDelay: '180ms' }}>
-          <h1 className="mt-8 font-display text-5xl font-bold">Order placed!</h1>
-          <p className="mt-3 text-accent-charcoal/60 text-lg text-pretty">
-            Thanks, {name.split(' ')[0]}. Your food is being prepped and will be on its way soon.
-          </p>
-          <div className="mt-8 card inline-flex flex-col sm:flex-row gap-4 sm:gap-10 px-8 py-6 text-left">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-accent-charcoal/50">Order #</p>
-              <p className="font-display text-2xl font-bold">#{confirmed.id}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-accent-charcoal/50">Total</p>
-              <p className="font-display text-2xl font-bold text-brand-600">
-                {formatMoney(confirmed.total)}
-              </p>
-            </div>
-          </div>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to={`/orders/${confirmed.id}`} className="btn btn-primary btn-size-lg">
-              Track my order
-            </Link>
-            <Link to="/menu" className="btn btn-ghost btn-size-lg">
-              Order more
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 md:px-8 py-10">
