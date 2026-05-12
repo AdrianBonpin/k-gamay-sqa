@@ -9,9 +9,8 @@ interface AdminUser {
 }
 
 interface AdminState {
-  token: string | null;
   adminUser: AdminUser | null;
-  setAdminAuth: (token: string, adminUser: AdminUser) => void;
+  setAdminAuth: (adminUser: AdminUser) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
 }
@@ -19,11 +18,10 @@ interface AdminState {
 export const useAdminStore = create<AdminState>()(
   persist(
     (set, get) => ({
-      token: null,
       adminUser: null,
-      setAdminAuth: (token, adminUser) => set({ token, adminUser }),
-      logout: () => set({ token: null, adminUser: null }),
-      isAuthenticated: () => Boolean(get().token && get().adminUser),
+      setAdminAuth: (adminUser) => set({ adminUser }),
+      logout: () => set({ adminUser: null }),
+      isAuthenticated: () => Boolean(get().adminUser),
     }),
     { name: 'kgamay-admin-auth' },
   ),
