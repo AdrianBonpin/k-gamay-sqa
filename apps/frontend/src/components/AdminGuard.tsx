@@ -10,40 +10,34 @@ interface AdminGuardProps {
 }
 
 export function AdminGuard({ children }: AdminGuardProps) {
-  const token = useAdminStore((s) => s.token);
   const adminUser = useAdminStore((s) => s.adminUser);
   const setAdminAuth = useAdminStore((s) => s.setAdminAuth);
   const location = useLocation();
 
-  // Tracks the auto-detection attempt on first mount
-  const [checking, setChecking] = useState(!token || !adminUser);
+  // Tracks the server verification on mount
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
-    // If we already have a stored token + user, skip the check
-    if (token && adminUser) {
-      setChecking(false);
-      return;
-    }
-
-    // Try to detect an existing Better-Auth admin session via cookie
     let cancelled = false;
+
+    // ALWAYS verify with the server — cached adminUser is NOT proof of auth
     getAdminMe()
-      .then(({ token: t, user }) => {
+      .then(({ user }) => {
         if (!cancelled) {
-          setAdminAuth(t, user);
-          setChecking(false);
+          setAdminAuth(user);
+          setVerified(true);
         }
       })
       .catch(() => {
-        // No valid admin session — show the login page
-        if (!cancelled) setChecking(false);
+        // No valid admin session — redirect to login
+        if (!cancelled) setVerified(true);
       });
 
     return () => { cancelled = true; };
-  }, [token, adminUser, setAdminAuth]);
+  }, [setAdminAuth]);
 
-  // While checking the session, show a spinner
-  if (checking) {
+  // While verifying, show a spinner (or cached user as skeleton hint)
+  if (!verified) {
     return (
       <div className="min-h-screen bg-surface-soft flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
@@ -51,7 +45,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
     );
   }
 
-  if (!token || !adminUser) {
+  if (!adminUser) {
     return <Navigate to="/admin/login" state={{ from: location.pathname }} replace />;
   }
 
