@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { GuestRoute } from '@/components/GuestRoute';
 import { Home } from '@/pages/Home';
 import { Menu } from '@/pages/Menu';
 import { MenuItemDetail } from '@/pages/MenuItemDetail';
@@ -28,8 +29,8 @@ const ROUTES: RouteDef[] = [
   { path: '/', element: <Home /> },
   { path: '/menu', element: <Menu /> },
   { path: '/menu/:id', element: <MenuItemDetail /> },
-  { path: '/login', element: <Login /> },
-  { path: '/signup', element: <Signup /> },
+  { path: '/login', element: <GuestRoute><Login /></GuestRoute> },
+  { path: '/signup', element: <GuestRoute><Signup /></GuestRoute> },
   { path: '/about', element: <About /> },
   { path: '/help', element: <Help /> },
   { path: '/privacy', element: <Privacy /> },

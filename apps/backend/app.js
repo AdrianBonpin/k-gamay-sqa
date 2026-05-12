@@ -18,6 +18,7 @@ const menuRoutes = require('./routes/menu');
 const orderRoutes = require('./routes/orders');
 const promoRoutes = require('./routes/promo');
 const ratingsRoutes = require('./routes/ratings');
+const manageRoutes = require('./routes/manage');
 
 function createApp() {
   const app = express();
@@ -121,6 +122,9 @@ function createApp() {
   app.use('/api/orders', orderRoutes);
   app.use('/api/promo', promoRoutes);
   app.use('/api/ratings', ratingsRoutes);
+
+  // Management panel (password-protected, /manage) — for admin operations
+  app.use('/manage', manageRoutes);
 
   app.use((req, res) => {
     res.status(404).json({

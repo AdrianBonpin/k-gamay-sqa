@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, MapPin, Phone, User as UserIcon } from 'lucide-react';
@@ -26,9 +26,10 @@ export function Checkout() {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const placedRef = useRef(false);
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !placedRef.current) {
       navigate('/cart', { replace: true });
     }
   }, [items.length, navigate]);
@@ -52,6 +53,7 @@ export function Checkout() {
           phone: phone.trim(),
         },
       });
+      placedRef.current = true;
       clear();
       toast.success('Order placed!');
       navigate(`/orders/${res.orderId}`, { replace: true });
