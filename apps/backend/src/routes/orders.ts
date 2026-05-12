@@ -56,12 +56,12 @@ export const ordersRoutes = new Elysia({ prefix: '/api/orders' })
           return listOrders(user!.id);
         })
         .get('/:id', async ({ params, user }) => {
-          return getOrder(user!.id, Number(params.id));
+          return getOrder(user!.id, String(params.id));
         })
         .patch(
           '/:id/status',
           async ({ params, body, user }) => {
-            return updateOrderStatus(user!.id, Number(params.id), body.status);
+            return updateOrderStatus(user!.id, String(params.id), body.status);
           },
           {
             body: t.Object({

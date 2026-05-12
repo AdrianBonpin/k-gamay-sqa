@@ -260,8 +260,8 @@ export async function listOrders(userId: string) {
   return result;
 }
 
-export async function getOrder(userId: string, orderId: number) {
-  if (!Number.isInteger(orderId) || orderId <= 0) {
+export async function getOrder(userId: string, orderId: string | number) {
+  if (!orderId) {
     throw new HttpError(400, 'ORDER_ID_INVALID', 'Invalid order id');
   }
   const db = getDb();
@@ -322,8 +322,8 @@ export async function getOrder(userId: string, orderId: number) {
   };
 }
 
-export async function updateOrderStatus(userId: string, orderId: number, status: string) {
-  if (!Number.isInteger(orderId) || orderId <= 0) {
+export async function updateOrderStatus(userId: string, orderId: string | number, status: string) {
+  if (!orderId) {
     throw new HttpError(400, 'ORDER_ID_INVALID', 'Invalid order id');
   }
   if (!VALID_STATUSES.includes(status as any)) {

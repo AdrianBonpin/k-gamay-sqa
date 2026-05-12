@@ -48,7 +48,7 @@ describe('POST /api/orders', () => {
     });
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.orderId).toBeNumber();
+    expect(typeof body.orderId).toBe('string');
     expect(body.status).toBe('pending');
     expect(body.total).toBeGreaterThan(0);
     expect(body.items.length).toBe(1);
