@@ -15,6 +15,13 @@
       "when": 1777562201142,
       "tag": "0001_giant_nextwave",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778578329078,
+      "tag": "0002_volatile_domino",
+      "breakpoints": true
     }
   ]
 }
