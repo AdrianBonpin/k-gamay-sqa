@@ -89,6 +89,10 @@ export const user = pgTable('user', {
   emailVerified: boolean('email_verified').default(false).notNull(),
   name: text('name').notNull(),
   image: text('image'),
+  role: text('role').default('user').notNull(),
+  banned: boolean('banned').default(false).notNull(),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires'),
 });
 
 export const session = pgTable('session', {
@@ -100,6 +104,7 @@ export const session = pgTable('session', {
   token: text('token').notNull().unique(),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
+  impersonatedBy: text('impersonated_by'),
 });
 
 export const account = pgTable('account', {

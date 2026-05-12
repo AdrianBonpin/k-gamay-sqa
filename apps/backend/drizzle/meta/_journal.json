@@ -22,6 +22,13 @@
       "when": 1778578329078,
       "tag": "0002_volatile_domino",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778593433345,
+      "tag": "0003_old_ironclad",
+      "breakpoints": true
     }
   ]
 }
