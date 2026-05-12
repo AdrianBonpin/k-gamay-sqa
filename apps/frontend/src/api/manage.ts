@@ -10,17 +10,27 @@ const manageApi = axios.create({
 });
 
 manageApi.interceptors.request.use((config) => {
-  config.headers = config.headers ?? {};
-  // Attach admin store token if available
-  const adminToken = useAdminStore.getState().token;
-  if (adminToken) {
-    config.headers.Authorization = `Bearer ${adminToken}`;
-  }
   if (!config.headers['x-request-id']) {
     config.headers['x-request-id'] = uuidv4();
   }
   return config;
 });
+
+// 401/403 response interceptor — clear admin state and redirect to login
+manageApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    if (status === 401 || status === 403) {
+      useAdminStore.getState().logout();
+      // Avoid redirect loops: only redirect if not already on login page
+      if (window.location.pathname !== '/admin/login') {
+        window.location.href = '/admin/login';
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 // ---------------------------------------------------------------------------
 // Types for manage responses
