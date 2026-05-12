@@ -1,4 +1,4 @@
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../db';
 import { lookupPromo } from './promoService';
 import { toCents, fromCents, applyDiscountCents } from '../lib/money';
@@ -207,34 +207,65 @@ export async function listOrders(userId: string) {
     .where(eq(schema.orders.userId, userId))
     .orderBy(sql`${schema.orders.createdAt} desc`);
 
-  // Fetch items and delivery for each order
-  const result = [];
-  for (const order of rows) {
-    const items = await db
-      .select({
-        id: schema.orderItems.id,
-        menuId: schema.orderItems.menuId,
-        qty: schema.orderItems.qty,
-        priceAtOrder: schema.orderItems.priceAtOrder,
-        name: schema.menuItems.name,
-        description: schema.menuItems.description,
-        imageUrl: schema.menuItems.imageUrl,
-        category: schema.menuItems.category,
-      })
-      .from(schema.orderItems)
-      .innerJoin(schema.menuItems, eq(schema.orderItems.menuId, schema.menuItems.id))
-      .where(eq(schema.orderItems.orderId, order.id));
+  // Collect all order IDs and delivery address IDs
+  const orderIds = rows.map((o) => o.id);
+  const deliveryIds = rows
+    .map((o) => o.deliveryAddressId)
+    .filter((id): id is number => id !== null);
 
-    let delivery = null;
-    if (order.deliveryAddressId) {
-      const [addr] = await db
-        .select({ name: schema.deliveryAddresses.name, address: schema.deliveryAddresses.address, phone: schema.deliveryAddresses.phone })
+  // Batch-load all items in one query
+  const allItems = orderIds.length > 0
+    ? await db
+        .select({
+          orderItemId: schema.orderItems.id,
+          orderId: schema.orderItems.orderId,
+          menuId: schema.orderItems.menuId,
+          qty: schema.orderItems.qty,
+          priceAtOrder: schema.orderItems.priceAtOrder,
+          name: schema.menuItems.name,
+          description: schema.menuItems.description,
+          imageUrl: schema.menuItems.imageUrl,
+          category: schema.menuItems.category,
+        })
+        .from(schema.orderItems)
+        .innerJoin(schema.menuItems, eq(schema.orderItems.menuId, schema.menuItems.id))
+        .where(inArray(schema.orderItems.orderId, orderIds))
+    : [];
+
+  // Batch-load all delivery addresses in one query
+  const allAddresses = deliveryIds.length > 0
+    ? await db
+        .select({
+          id: schema.deliveryAddresses.id,
+          name: schema.deliveryAddresses.name,
+          address: schema.deliveryAddresses.address,
+          phone: schema.deliveryAddresses.phone,
+        })
         .from(schema.deliveryAddresses)
-        .where(eq(schema.deliveryAddresses.id, order.deliveryAddressId));
-      if (addr) delivery = addr;
-    }
+        .where(inArray(schema.deliveryAddresses.id, deliveryIds))
+    : [];
 
-    result.push({
+  // Group by parent ID
+  const { groupBy } = await import('../lib/batchLoader');
+  const itemsByOrder = groupBy(allItems, (it: { orderId: number }) => it.orderId);
+  const addressById = new Map(allAddresses.map((a) => [a.id, a]));
+
+  const result = rows.map((order) => {
+    const items = (itemsByOrder.get(order.id) ?? []).map((it) => ({
+      id: it.orderItemId,
+      menuId: it.menuId,
+      qty: it.qty,
+      priceAtOrder: it.priceAtOrder,
+      name: it.name,
+      description: it.description,
+      imageUrl: it.imageUrl,
+      category: it.category,
+    }));
+
+    const addr = order.deliveryAddressId ? addressById.get(order.deliveryAddressId) : undefined;
+    const delivery = addr ? { name: addr.name, address: addr.address, phone: addr.phone } : null;
+
+    return {
       id: order.id,
       userId: order.userId,
       total: fromCents(order.totalCents),
@@ -244,19 +275,10 @@ export async function listOrders(userId: string) {
       promoCode: order.promoCode ?? null,
       discount: order.discount ?? 0,
       paymentMethod: order.paymentMethod ?? null,
-      items: items.map((it) => ({
-        id: it.id,
-        menuId: it.menuId,
-        qty: it.qty,
-        priceAtOrder: it.priceAtOrder,
-        name: it.name,
-        description: it.description,
-        imageUrl: it.imageUrl,
-        category: it.category,
-      })),
+      items,
       delivery,
-    });
-  }
+    };
+  });
   return result;
 }
 

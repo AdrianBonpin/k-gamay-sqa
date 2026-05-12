@@ -302,11 +302,18 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
         .orderBy(desc(schema.orders.createdAt));
     }
 
-    const enriched = await Promise.all(
-      orderRows.map(async (o) => {
-        const items = await db
+    // Collect all order IDs and delivery address IDs
+    const orderIds = orderRows.map((o) => o.id);
+    const deliveryIds = orderRows
+      .map((o) => o.deliveryAddressId)
+      .filter((id): id is number => id !== null);
+
+    // Batch-load all items in one query
+    const allItems = orderIds.length > 0
+      ? await db
           .select({
-            id: schema.orderItems.id,
+            orderItemId: schema.orderItems.id,
+            orderId: schema.orderItems.orderId,
             menuId: schema.orderItems.menuId,
             qty: schema.orderItems.qty,
             priceAtOrder: schema.orderItems.priceAtOrder,
@@ -315,37 +322,55 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
           })
           .from(schema.orderItems)
           .innerJoin(schema.menuItems, eq(schema.orderItems.menuId, schema.menuItems.id))
-          .where(eq(schema.orderItems.orderId, o.id));
+          .where(inArray(schema.orderItems.orderId, orderIds))
+      : [];
 
-        let delivery = null;
-        if (o.deliveryAddressId) {
-          const [addr] = await db
-            .select({
-              name: schema.deliveryAddresses.name,
-              address: schema.deliveryAddresses.address,
-              phone: schema.deliveryAddresses.phone,
-            })
-            .from(schema.deliveryAddresses)
-            .where(eq(schema.deliveryAddresses.id, o.deliveryAddressId));
-          if (addr) delivery = addr;
-        }
+    // Batch-load all delivery addresses in one query
+    const allAddresses = deliveryIds.length > 0
+      ? await db
+          .select({
+            id: schema.deliveryAddresses.id,
+            name: schema.deliveryAddresses.name,
+            address: schema.deliveryAddresses.address,
+            phone: schema.deliveryAddresses.phone,
+          })
+          .from(schema.deliveryAddresses)
+          .where(inArray(schema.deliveryAddresses.id, deliveryIds))
+      : [];
 
-        return {
-          id: o.id,
-          userId: o.userId,
-          userEmail: o.userEmail,
-          userName: o.userName,
-          status: o.status,
-          createdAt: o.createdAt.toISOString(),
-          total: fromCents(o.totalCents),
-          totalCents: o.totalCents,
-          promoCode: o.promoCode ?? null,
-          discount: typeof o.discount === 'number' ? o.discount : 0,
-          items,
-          delivery,
-        };
-      }),
-    );
+    // Group by parent ID
+    const { groupBy } = await import('../lib/batchLoader');
+    const itemsByOrder = groupBy(allItems, (it: { orderId: number }) => it.orderId);
+    const addressById = new Map(allAddresses.map((a) => [a.id, a]));
+
+    const enriched = orderRows.map((o) => {
+      const items = (itemsByOrder.get(o.id) ?? []).map((it) => ({
+        id: it.orderItemId,
+        menuId: it.menuId,
+        qty: it.qty,
+        priceAtOrder: it.priceAtOrder,
+        name: it.name,
+        imageUrl: it.imageUrl,
+      }));
+
+      const addr = o.deliveryAddressId ? addressById.get(o.deliveryAddressId) : undefined;
+      const delivery = addr ? { name: addr.name, address: addr.address, phone: addr.phone } : null;
+
+      return {
+        id: o.id,
+        userId: o.userId,
+        userEmail: o.userEmail,
+        userName: o.userName,
+        status: o.status,
+        createdAt: o.createdAt.toISOString(),
+        total: fromCents(o.totalCents),
+        totalCents: o.totalCents,
+        promoCode: o.promoCode ?? null,
+        discount: typeof o.discount === 'number' ? o.discount : 0,
+        items,
+        delivery,
+      };
+    });
 
     return enriched;
   })
