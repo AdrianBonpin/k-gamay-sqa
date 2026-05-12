@@ -1,5 +1,6 @@
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { getDb, schema } from '../db';
+import { auth } from '../auth';
 
 const SEED_PROMOS = [
   {
@@ -99,6 +100,38 @@ export async function seed() {
           firstOrderOnly: promo.firstOrderOnly,
         })
         .onConflictDoNothing();
+    }
+  }
+
+  // Seed admin user
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@kgamay.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123456';
+
+  const [existingAdmin] = await db
+    .select({ id: schema.user.id })
+    .from(schema.user)
+    .where(eq(schema.user.email, adminEmail));
+
+  if (!existingAdmin) {
+    try {
+      // Create user via Better-Auth's internal signup API
+      const result = await auth.api.signUpEmail({
+        body: {
+          email: adminEmail,
+          password: adminPassword,
+          name: 'Admin',
+        },
+      });
+
+      // Set the role to admin
+      await db
+        .update(schema.user)
+        .set({ role: 'admin' })
+        .where(eq(schema.user.email, adminEmail));
+
+      console.log(`Admin user created: ${adminEmail}`);
+    } catch (err) {
+      console.error('Failed to create admin user:', err);
     }
   }
 
