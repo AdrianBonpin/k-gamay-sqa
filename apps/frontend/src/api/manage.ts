@@ -138,7 +138,7 @@ export async function getDashboard(): Promise<{ ok: boolean; stats: DashboardSta
 // ---------------------------------------------------------------------------
 
 export async function listUsers(): Promise<ManageUser[]> {
-  const { data } = await manageApi.get('/manage/users');
+  const { data } = await manageApi.get('/api/manage/users');
   return data;
 }
 
@@ -163,7 +163,7 @@ export async function listOrders(
   if (status && ['pending', 'in_progress', 'delivered'].includes(status)) {
     params.status = status;
   }
-  const { data } = await manageApi.get('/manage/orders', { params });
+  const { data } = await manageApi.get('/api/manage/orders', { params });
   return data;
 }
 
@@ -185,14 +185,14 @@ export async function updateOrderStatus(
 // ---------------------------------------------------------------------------
 
 export async function listMenu(): Promise<ManageMenuItem[]> {
-  const { data } = await manageApi.get('/manage/menu');
+  const { data } = await manageApi.get('/api/manage/menu');
   return data;
 }
 
 export async function createMenuItem(
   item: { name: string; description?: string; price: number; imageUrl?: string; category: string },
 ): Promise<ManageMenuItem> {
-  const { data } = await manageApi.post('/manage/menu', item);
+  const { data } = await manageApi.post('/api/manage/menu', item);
   return data;
 }
 
@@ -214,7 +214,7 @@ export async function deleteMenuItem(id: number): Promise<{ ok: boolean; deleted
 // ---------------------------------------------------------------------------
 
 export async function listPromos(): Promise<ManagePromo[]> {
-  const { data } = await manageApi.get('/manage/promos');
+  const { data } = await manageApi.get('/api/manage/promos');
   return data;
 }
 
@@ -229,7 +229,7 @@ export async function createPromo(
     firstOrderOnly?: boolean;
   },
 ): Promise<ManagePromo> {
-  const { data } = await manageApi.post('/manage/promos', promo);
+  const { data } = await manageApi.post('/api/manage/promos', promo);
   return data;
 }
 
@@ -249,7 +249,7 @@ export async function listRatings(
   const params: Record<string, number> = {};
   if (limit !== undefined) params.limit = limit;
   if (offset !== undefined) params.offset = offset;
-  const { data } = await manageApi.get('/manage/ratings', { params });
+  const { data } = await manageApi.get('/api/manage/ratings', { params });
   return data;
 }
 
