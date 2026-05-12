@@ -1,14 +1,16 @@
 import axios from 'axios';
 import { useAdminStore } from '@/store/adminStore';
 
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
 export interface AdminLoginResponse {
   token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
+  user: AdminUser;
 }
 
 const adminApi = axios.create({
@@ -17,13 +19,21 @@ const adminApi = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-adminApi.interceptors.request.use((config) => {
-  const token = useAdminStore.getState().token;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// 401/403 response interceptor — clear admin state and redirect to login
+adminApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    if (status === 401 || status === 403) {
+      useAdminStore.getState().logout();
+      // Avoid redirect loops: only redirect if not already on login page
+      if (window.location.pathname !== '/admin/login') {
+        window.location.href = '/admin/login';
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 export async function adminLogin(
   email: string,
