@@ -5,6 +5,7 @@ import { useAdminStore } from '@/store/adminStore';
 
 const manageApi = axios.create({
   baseURL: '',
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
 

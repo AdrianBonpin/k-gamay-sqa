@@ -13,6 +13,7 @@ export interface AdminLoginResponse {
 
 const adminApi = axios.create({
   baseURL: '',
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -29,6 +30,12 @@ export async function adminLogin(
   password: string,
 ): Promise<AdminLoginResponse> {
   const { data } = await adminApi.post('/api/admin/login', { email, password });
+  return data;
+}
+
+/** Check if the current session cookie belongs to an admin. */
+export async function getAdminMe(): Promise<AdminLoginResponse> {
+  const { data } = await adminApi.get('/api/admin/me');
   return data;
 }
 

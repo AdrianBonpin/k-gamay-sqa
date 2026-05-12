@@ -53,4 +53,33 @@ export const adminAuthRoutes = new Elysia({ prefix: '/api/admin' })
         password: t.String(),
       }),
     },
-  );
+  )
+
+  // Check if the current session belongs to an admin.
+  // Used by the frontend AdminGuard to auto-detect an existing session
+  // so admins don't have to re-login at /admin/login.
+  .get('/me', async ({ request }) => {
+    const session = await auth.api.getSession({ headers: request.headers });
+
+    if (!session) {
+      throw new HttpError(401, 'AUTH_REQUIRED', 'No active session');
+    }
+
+    const user = session.user as Record<string, unknown>;
+    const roleStr: string = (user.role as string) ?? '';
+    const roles = roleStr.split(',').map((r) => r.trim()).filter(Boolean);
+
+    if (!roles.includes('admin')) {
+      throw new HttpError(403, 'NOT_ADMIN', 'This account does not have admin access');
+    }
+
+    return {
+      token: session.session.token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    };
+  });
