@@ -3,7 +3,6 @@ import { eq, ne, and, sql, inArray, desc, asc } from 'drizzle-orm';
 import { getDb, schema } from '../db';
 import { HttpError } from '../lib/errors';
 import { toCents, fromCents, applyDiscountCents } from '../lib/money';
-import { requireManageAuth } from '../middleware/manageAuth';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -44,10 +43,8 @@ async function ratingSummariesForMenuIds(ids: number[]): Promise<Map<number, Rat
 // Routes
 // ---------------------------------------------------------------------------
 
-export const manageRoutes = new Elysia({ prefix: '/manage' }).guard(
-  { beforeHandle: requireManageAuth },
-  (app) =>
-    app
+export const manageRoutes = new Elysia({ prefix: '/manage' })
+
       // ═══════════════════════════════════════════════════════════════════
       // DASHBOARD
       // ═══════════════════════════════════════════════════════════════════
@@ -832,5 +829,4 @@ export const manageRoutes = new Elysia({ prefix: '/manage' }).guard(
         await db.delete(schema.ratings).where(eq(schema.ratings.id, id));
 
         return { ok: true, deleted: id };
-      }),
-);
+      });

@@ -1,14 +1,12 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import toast from 'react-hot-toast';
 import {
-  Lock,
   LayoutDashboard,
   Users,
   ShoppingBag,
   UtensilsCrossed,
   TicketPercent,
   Star,
-  LogOut,
   Trash2,
   ChevronDown,
   ChevronRight,
@@ -75,34 +73,7 @@ const CATEGORIES = ['Burgers', 'Pizza', 'Asian', 'Desserts', 'Drinks'];
 // ---------------------------------------------------------------------------
 
 export function Manage() {
-  const [manageKey, setManageKey] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [authenticated, setAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
-
-  // Attempt authentication by calling /manage with the key
-  const handleLogin = useCallback(
-    async (e: FormEvent) => {
-      e.preventDefault();
-      if (!manageKey.trim()) {
-        setAuthError('Please enter the management password.');
-        return;
-      }
-      setAuthError('');
-      try {
-        await getDashboard(manageKey.trim());
-        setAuthenticated(true);
-        toast.success('Authenticated');
-      } catch (err) {
-        setAuthError(extractError(err, 'Authentication failed'));
-      }
-    },
-    [manageKey],
-  );
-
-  if (!authenticated) {
-    return <LoginScreen manageKey={manageKey} setManageKey={setManageKey} error={authError} onSubmit={handleLogin} />;
-  }
 
   return (
     <div className="min-h-screen bg-accent-charcoal text-white">
@@ -114,17 +85,6 @@ export function Manage() {
               K-Gamay <span className="text-brand-500">Admin</span>
             </span>
           </div>
-          <button
-            onClick={() => {
-              setAuthenticated(false);
-              setManageKey('');
-              setActiveTab('dashboard');
-            }}
-            className="btn btn-ghost btn-size-sm text-white/70 hover:text-white"
-          >
-            <LogOut className="h-4 w-4" />
-            Log out
-          </button>
         </div>
       </header>
 
@@ -177,12 +137,12 @@ export function Manage() {
 
         {/* Content area */}
         <main className="flex-1 p-4 md:p-8 min-h-[calc(100vh-4rem)]">
-          {activeTab === 'dashboard' && <DashboardTab manageKey={manageKey} />}
-          {activeTab === 'users' && <UsersTab manageKey={manageKey} />}
-          {activeTab === 'orders' && <OrdersTab manageKey={manageKey} />}
-          {activeTab === 'menu' && <MenuTab manageKey={manageKey} />}
-          {activeTab === 'promos' && <PromosTab manageKey={manageKey} />}
-          {activeTab === 'ratings' && <RatingsTab manageKey={manageKey} />}
+          {activeTab === 'dashboard' && <DashboardTab />}
+          {activeTab === 'users' && <UsersTab />}
+          {activeTab === 'orders' && <OrdersTab />}
+          {activeTab === 'menu' && <MenuTab />}
+          {activeTab === 'promos' && <PromosTab />}
+          {activeTab === 'ratings' && <RatingsTab />}
         </main>
       </div>
     </div>
@@ -190,69 +150,11 @@ export function Manage() {
 }
 
 // ---------------------------------------------------------------------------
-// Login screen
-// ---------------------------------------------------------------------------
-
-function LoginScreen({
-  manageKey,
-  setManageKey,
-  error,
-  onSubmit,
-}: {
-  manageKey: string;
-  setManageKey: (v: string) => void;
-  error: string;
-  onSubmit: (e: FormEvent) => void;
-}) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-accent-charcoal p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-brand-500/20 mb-4">
-            <Lock className="h-8 w-8 text-brand-400" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-white">Admin Panel</h1>
-          <p className="mt-2 text-white/50">Enter the management password to continue.</p>
-        </div>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <input
-              type="password"
-              value={manageKey}
-              onChange={(e) => {
-                setManageKey(e.target.value);
-              }}
-              onFocus={() => {}}
-              autoFocus
-              placeholder="Management password"
-              autoComplete="off"
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all"
-            />
-            {error && (
-              <p className="mt-2 text-sm text-red-400 bg-red-400/10 px-3 py-2 rounded-lg">
-                {error}
-              </p>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="btn btn-primary btn-size-lg w-full"
-            disabled={!manageKey.trim()}
-          >
-            <Lock className="h-4 w-4" />
-            Unlock
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Dashboard tab
 // ---------------------------------------------------------------------------
 
-function DashboardTab({ manageKey }: { manageKey: string }) {
+function DashboardTab() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -261,14 +163,14 @@ function DashboardTab({ manageKey }: { manageKey: string }) {
     setLoading(true);
     setError('');
     try {
-      const { stats: s } = await getDashboard(manageKey);
+      const { stats: s } = await getDashboard();
       setStats(s);
     } catch (err) {
       setError(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, [manageKey]);
+  }, []);
 
   useEffect(() => {
     fetch();
@@ -356,7 +258,7 @@ function StatusCard({
 // Users tab
 // ---------------------------------------------------------------------------
 
-function UsersTab({ manageKey }: { manageKey: string }) {
+function UsersTab() {
   const [users, setUsers] = useState<ManageUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -368,14 +270,14 @@ function UsersTab({ manageKey }: { manageKey: string }) {
     setLoading(true);
     setError('');
     try {
-      const u = await listUsers(manageKey);
+      const u = await listUsers();
       setUsers(u);
     } catch (err) {
       setError(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, [manageKey]);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -392,7 +294,7 @@ function UsersTab({ manageKey }: { manageKey: string }) {
       setDetailLoading(true);
       setUserDetail(null);
       try {
-        const detail = await getUser(manageKey, id);
+        const detail = await getUser(id);
         setUserDetail(detail);
       } catch (err) {
         toast.error(extractError(err));
@@ -400,14 +302,14 @@ function UsersTab({ manageKey }: { manageKey: string }) {
         setDetailLoading(false);
       }
     },
-    [manageKey, expandedId],
+    [expandedId],
   );
 
   const handleDelete = useCallback(
     async (id: number, name: string) => {
       if (!window.confirm(`Delete user "${name}" and all their data? This cannot be undone.`)) return;
       try {
-        await deleteUser(manageKey, id);
+        await deleteUser(id);
         toast.success(`User "${name}" deleted`);
         setUsers((prev) => prev.filter((u) => u.id !== id));
         if (expandedId === id) {
@@ -418,7 +320,7 @@ function UsersTab({ manageKey }: { manageKey: string }) {
         toast.error(extractError(err));
       }
     },
-    [manageKey, expandedId],
+    [expandedId],
   );
 
   if (loading) return <LoadingBlock />;
@@ -519,7 +421,7 @@ function UsersTab({ manageKey }: { manageKey: string }) {
 // Orders tab
 // ---------------------------------------------------------------------------
 
-function OrdersTab({ manageKey }: { manageKey: string }) {
+function OrdersTab() {
   const [orders, setOrders] = useState<ManageOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -533,14 +435,14 @@ function OrdersTab({ manageKey }: { manageKey: string }) {
     setLoading(true);
     setError('');
     try {
-      const o = await listOrders(manageKey, statusFilter || undefined);
+      const o = await listOrders(statusFilter || undefined);
       setOrders(o);
     } catch (err) {
       setError(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, [manageKey, statusFilter]);
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchOrders();
@@ -557,7 +459,7 @@ function OrdersTab({ manageKey }: { manageKey: string }) {
       setDetailLoading(true);
       setOrderDetail(null);
       try {
-        const detail = await getOrder(manageKey, id);
+        const detail = await getOrder(id);
         setOrderDetail(detail);
       } catch (err) {
         toast.error(extractError(err));
@@ -565,14 +467,14 @@ function OrdersTab({ manageKey }: { manageKey: string }) {
         setDetailLoading(false);
       }
     },
-    [manageKey, expandedId],
+    [expandedId],
   );
 
   const handleStatusChange = useCallback(
     async (id: number, newStatus: string) => {
       setUpdatingStatus(id);
       try {
-        const updated = await updateOrderStatus(manageKey, id, newStatus);
+        const updated = await updateOrderStatus(id, newStatus);
         setOrders((prev) =>
           prev.map((o) => (o.id === id ? { ...o, status: updated.status } : o)),
         );
@@ -584,7 +486,7 @@ function OrdersTab({ manageKey }: { manageKey: string }) {
         setUpdatingStatus(null);
       }
     },
-    [manageKey],
+    [],
   );
 
   return (
@@ -749,7 +651,7 @@ function OrdersTab({ manageKey }: { manageKey: string }) {
 // Menu tab
 // ---------------------------------------------------------------------------
 
-function MenuTab({ manageKey }: { manageKey: string }) {
+function MenuTab() {
   const [items, setItems] = useState<ManageMenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -768,14 +670,14 @@ function MenuTab({ manageKey }: { manageKey: string }) {
     setLoading(true);
     setError('');
     try {
-      const data = await listMenu(manageKey);
+      const data = await listMenu();
       setItems(data);
     } catch (err) {
       setError(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, [manageKey]);
+  }, []);
 
   useEffect(() => {
     fetch();
@@ -814,7 +716,7 @@ function MenuTab({ manageKey }: { manageKey: string }) {
     setSaving(true);
     try {
       if (editId) {
-        const updated = await updateMenuItem(manageKey, editId, {
+        const updated = await updateMenuItem(editId, {
           name: formName.trim(),
           description: formDesc.trim(),
           price,
@@ -824,7 +726,7 @@ function MenuTab({ manageKey }: { manageKey: string }) {
         setItems((prev) => prev.map((it) => (it.id === editId ? { ...it, ...updated } : it)));
         toast.success(`"${updated.name}" updated`);
       } else {
-        const created = await createMenuItem(manageKey, {
+        const created = await createMenuItem( {
           name: formName.trim(),
           description: formDesc.trim(),
           price,
@@ -845,7 +747,7 @@ function MenuTab({ manageKey }: { manageKey: string }) {
   const handleDelete = async (id: number, name: string) => {
     if (!window.confirm(`Delete menu item "${name}"?`)) return;
     try {
-      await deleteMenuItem(manageKey, id);
+      await deleteMenuItem(id);
       setItems((prev) => prev.filter((it) => it.id !== id));
       toast.success(`"${name}" deleted`);
     } catch (err) {
@@ -990,7 +892,7 @@ function MenuTab({ manageKey }: { manageKey: string }) {
 // Promos tab
 // ---------------------------------------------------------------------------
 
-function PromosTab({ manageKey }: { manageKey: string }) {
+function PromosTab() {
   const [promos, setPromos] = useState<ManagePromo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -1007,14 +909,14 @@ function PromosTab({ manageKey }: { manageKey: string }) {
     setLoading(true);
     setError('');
     try {
-      const data = await listPromos(manageKey);
+      const data = await listPromos();
       setPromos(data);
     } catch (err) {
       setError(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, [manageKey]);
+  }, []);
 
   useEffect(() => {
     fetch();
@@ -1040,7 +942,7 @@ function PromosTab({ manageKey }: { manageKey: string }) {
 
     setSaving(true);
     try {
-      const created = await createPromo(manageKey, {
+      const created = await createPromo( {
         code: formCode.trim(),
         discount,
         description: formDesc.trim(),
@@ -1059,7 +961,7 @@ function PromosTab({ manageKey }: { manageKey: string }) {
   const handleDelete = async (code: string) => {
     if (!window.confirm(`Delete promo "${code}"?`)) return;
     try {
-      await deletePromo(manageKey, code);
+      await deletePromo(code);
       setPromos((prev) => prev.filter((p) => p.code !== code));
       toast.success(`Promo "${code}" deleted`);
     } catch (err) {
@@ -1172,7 +1074,7 @@ function PromosTab({ manageKey }: { manageKey: string }) {
 // Ratings tab
 // ---------------------------------------------------------------------------
 
-function RatingsTab({ manageKey }: { manageKey: string }) {
+function RatingsTab() {
   const [data, setData] = useState<ManageRatingsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -1183,14 +1085,14 @@ function RatingsTab({ manageKey }: { manageKey: string }) {
     setLoading(true);
     setError('');
     try {
-      const result = await listRatings(manageKey, limit, offset);
+      const result = await listRatings(limit, offset);
       setData(result);
     } catch (err) {
       setError(extractError(err));
     } finally {
       setLoading(false);
     }
-  }, [manageKey, offset]);
+  }, [offset]);
 
   useEffect(() => {
     fetch();
@@ -1199,7 +1101,7 @@ function RatingsTab({ manageKey }: { manageKey: string }) {
   const handleDelete = async (id: number) => {
     if (!window.confirm('Delete this rating?')) return;
     try {
-      await deleteRating(manageKey, id);
+      await deleteRating(id);
       setData((prev) =>
         prev ? { ...prev, ratings: prev.ratings.filter((r) => r.id !== id), total: prev.total - 1 } : prev,
       );
