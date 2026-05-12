@@ -19,14 +19,25 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         throw new HttpError(400, 'INVALID_NAME', 'Name is required');
       }
       set.status = 201;
-      const result = await auth.api.signUpEmail({
-        body: {
-          email: body.email as string,
-          password: body.password as string,
-          name: body.name as string,
-        },
-        asResponse: true,
-      });
+
+      let result;
+      try {
+        result = await auth.api.signUpEmail({
+          body: {
+            email: body.email as string,
+            password: body.password as string,
+            name: body.name as string,
+          },
+          asResponse: true,
+        });
+      } catch (err: any) {
+        // Surface the real Better-Auth error instead of a generic 500
+        const message = err?.body?.message
+          || err?.message
+          || 'Signup failed — the email may already be registered';
+        const status = err?.status || err?.statusCode || 400;
+        throw new HttpError(status, 'SIGNUP_FAILED', message);
+      }
       // Forward the session cookie from better-auth
       const setCookie = result.headers.get('set-cookie');
       if (setCookie) {
