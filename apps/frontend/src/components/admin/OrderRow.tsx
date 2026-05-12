@@ -50,7 +50,7 @@ export function OrderRow({ order, expanded, detail, detailLoading, updatingStatu
                 <div><span className="text-accent-charcoal/40">Customer</span><p className="font-medium text-accent-charcoal">{detail.userName}</p></div>
                 <div><span className="text-accent-charcoal/40">Email</span><p className="font-medium text-accent-charcoal truncate">{detail.userEmail}</p></div>
                 <div><span className="text-accent-charcoal/40">Promo</span><p className="font-medium text-accent-charcoal">{detail.promoCode || '—'}</p></div>
-                <div><span className="text-accent-charcoal/40">Discount</span><p className="font-medium text-accent-charcoal">{formatMoney(detail.discount)}</p></div>
+                <div><span className="text-accent-charcoal/40">Discount</span><p className="font-medium text-accent-charcoal">{Math.round(detail.discount * 100)}%</p></div>
               </div>
               {detail.delivery && <div className="p-3 rounded-xl bg-surface-muted text-sm"><span className="text-accent-charcoal/40">Delivery</span><p className="font-medium text-accent-charcoal">{detail.delivery.name} · {detail.delivery.address} · {detail.delivery.phone}</p></div>}
               <div>
