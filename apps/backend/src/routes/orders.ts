@@ -45,9 +45,13 @@ export const ordersRoutes = new Elysia({ prefix: '/api/orders' })
               promoCode: t.Optional(t.String()),
               paymentMethod: t.Optional(t.String()),
               delivery: t.Object({
-                name: t.String({ minLength: 1 }),
-                address: t.String({ minLength: 1 }),
-                phone: t.String({ minLength: 1 }),
+                name: t.String({ minLength: 1, maxLength: 200 }),
+                address: t.String({ minLength: 1, maxLength: 500 }),
+                phone: t.String({
+                  minLength: 7,
+                  maxLength: 20,
+                  pattern: '^[0-9+\\-() ]+$',
+                }),
               }),
             }),
           },
