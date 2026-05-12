@@ -35,19 +35,19 @@ export function createApp() {
     // Rate limiting: auth endpoints first (more restrictive)
     .use(authRateLimit)
     .use(authRoutes)
-    // Global rate limit for remaining API routes
-    .use(globalRateLimit)
     // Health (no rate limit)
     .use(healthRoutes)
-    // API routes
+    // Admin auth routes (public login + session check)
+    .use(adminAuthRoutes)   // /api/admin/login, /api/admin/me
+    // Management panel (adminGuard applies internally)
+    .use(manageRoutes)      // /api/manage/*
+    // Global rate limit for remaining API routes
+    .use(globalRateLimit)
+    // API routes (rate-limited)
     .use(menuRoutes)
     .use(ordersRoutes)
     .use(promoRoutes)
     .use(ratingsRoutes)
-    // Admin login (role verification)
-    .use(adminAuthRoutes)   // /api/admin/login
-    // Management panel
-    .use(manageRoutes)      // /api/manage (admin guard applies internally)
     // Catch-all: try SPA frontend, then 404
     .all('*', async ({ path, set }) => {
       const response = await tryServeFrontend(path);
