@@ -11,7 +11,7 @@ import { manageRoutes } from './routes/manage';
 import { globalRateLimit, authRateLimit } from './middleware/rateLimit';
 import { requestIdPlugin } from './middleware/requestId';
 import { HttpError } from './lib/errors';
-import { serveFrontend } from './middleware/staticFiles';
+import { tryServeFrontend } from './middleware/staticFiles';
 
 export function createApp() {
   return new Elysia()
@@ -42,10 +42,10 @@ export function createApp() {
     .use(ratingsRoutes)
     // Management panel
     .use(manageRoutes)
-    // In production, serve the built frontend SPA from ../frontend/dist
-    .use(serveFrontend)
-    // 404
-    .all('*', ({ set }) => {
+    // Catch-all: try SPA frontend, then 404
+    .all('*', async ({ path, set }) => {
+      const response = await tryServeFrontend(path);
+      if (response) return response;
       set.status = 404;
       return { error: { code: 'NOT_FOUND', message: 'Not found' } };
     })
