@@ -1,8 +1,18 @@
 import { formatDollars } from '@/lib/money';
 
-// Backward-compatible helper: takes a dollars value and returns "$X.YY".
-// Internally routes through integer-cents to avoid float drift.
-// Prefer `formatMoney` from '@/lib/money' (takes cents) for new code.
+/**
+ * LEGACY — DO NOT USE IN NEW CODE.
+ *
+ * Input: DOLLARS (float, e.g. 12.50), NOT cents.
+ * Routes through formatDollars → toCents → formatMoney internally.
+ *
+ * ⚠️ WARNING: @/lib/money also exports `formatMoney` but expects CENTS (integers).
+ * Passing cents to THIS function will produce 100× inflated output.
+ * Passing dollars to THE OTHER function will crash with `fromCents expects an integer`.
+ *
+ * For new code importing directly from API responses with `totalCents` fields,
+ * use `import { formatMoney } from '@/lib/money'` instead.
+ */
 export function formatMoney(dollars: number): string {
   return formatDollars(dollars);
 }
