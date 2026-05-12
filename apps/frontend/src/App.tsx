@@ -33,7 +33,7 @@ const ROUTES: RouteDef[] = [
   { path: '/about', element: <About /> },
   { path: '/help', element: <Help /> },
   { path: '/privacy', element: <Privacy /> },
-  { path: '/cart', element: <Cart />, protected: true },
+  { path: '/cart', element: <Cart /> },
   { path: '/checkout', element: <Checkout />, protected: true },
   { path: '/orders', element: <Orders />, protected: true },
   { path: '/orders/:id', element: <OrderDetail />, protected: true },

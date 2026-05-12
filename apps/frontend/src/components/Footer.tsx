@@ -12,7 +12,7 @@ export function Footer() {
           <span className="font-display text-lg font-bold">K-Gamay</span>
         </div>
         <p className="text-sm text-accent-charcoal/50">
-          © {new Date().getFullYear()} K-Gamay. Coursework project — IT 3202N SQA.
+          © {new Date().getFullYear()} K-Gamay. Coursework project for IT 3202N SQA.
         </p>
         <div className="flex gap-6 text-sm text-accent-charcoal/60">
           <Link to="/about" className="hover:text-brand-600 transition">

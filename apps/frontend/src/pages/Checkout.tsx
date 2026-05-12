@@ -118,7 +118,7 @@ export function Checkout() {
     <div className="mx-auto max-w-6xl px-4 md:px-8 py-10">
       <h1 className="font-display text-4xl md:text-5xl font-bold">Checkout</h1>
       <p className="mt-2 text-accent-charcoal/60">
-        Almost there — one more step and dinner&apos;s on its way.
+        Almost there. One more step and dinner&apos;s on its way.
       </p>
 
       <form onSubmit={submit} className="mt-8 grid lg:grid-cols-[1fr_22rem] gap-8">
@@ -160,7 +160,7 @@ export function Checkout() {
           <section className="card p-6">
             <h2 className="font-display text-2xl font-bold mb-4">Payment</h2>
             <div className="rounded-2xl bg-surface-soft p-4 text-sm text-accent-charcoal/70">
-              This is a coursework demo — no payment is charged. Your order will be recorded and
+              This is a coursework demo. No payment is charged. Your order will be recorded and
               delivered as pending in the system.
             </div>
           </section>

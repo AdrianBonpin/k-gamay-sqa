@@ -52,7 +52,7 @@ export function Orders() {
       <header className="mb-8">
         <h1 className="font-display text-4xl md:text-5xl font-bold">Your orders</h1>
         <p className="mt-2 text-accent-charcoal/60">
-          {orders.length} {orders.length === 1 ? 'order' : 'orders'} — tap any to see details.
+          {orders.length} {orders.length === 1 ? 'order' : 'orders'}. Tap any to see details.
         </p>
       </header>
 

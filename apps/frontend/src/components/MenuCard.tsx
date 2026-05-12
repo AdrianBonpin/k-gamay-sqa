@@ -43,9 +43,9 @@ export function MenuCard({ item, onAdd }: Props) {
             <span className="font-display text-2xl text-brand-600">{formatMoney(item.price)}</span>
             {hasRatings && r && (
               <span className="inline-flex items-center gap-1.5 text-xs text-accent-charcoal/60">
-                <Stars value={r.average} size="sm" />
+                <Stars value={Number(r.average)} size="sm" />
                 <span className="font-medium">
-                  {r.average.toFixed(1)} · {r.count}
+                  {Number(r.average).toFixed(1)} · {r.count}
                 </span>
               </span>
             )}

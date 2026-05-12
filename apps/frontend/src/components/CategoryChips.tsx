@@ -1,17 +1,19 @@
+import type { ReactNode } from 'react';
 import { classNames } from '@/lib/utils';
 
 interface Props {
   categories: string[];
   active: string;
   onChange: (cat: string) => void;
+  trailing?: ReactNode;
 }
 
-export function CategoryChips({ categories, active, onChange }: Props) {
+export function CategoryChips({ categories, active, onChange, trailing }: Props) {
   return (
     <div
       role="tablist"
       aria-label="Menu categories"
-      className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap"
+      className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap items-center"
     >
       {categories.map((cat) => {
         const isActive = cat === active;
@@ -27,6 +29,7 @@ export function CategoryChips({ categories, active, onChange }: Props) {
           </button>
         );
       })}
+      {trailing}
     </div>
   );
 }

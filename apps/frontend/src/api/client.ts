@@ -33,30 +33,61 @@ api.interceptors.response.use(
   },
 );
 
+function friendlyServerMessage(raw: string, status: number | undefined): string | null {
+  const m = raw.toLowerCase();
+  if (m.includes('invalid credentials') || m.includes('invalid email or password')) {
+    return 'Wrong email or password.';
+  }
+  if (m.includes('invalid email')) return 'That email address doesn’t look right.';
+  if (m.includes('password must be')) return raw;
+  if (m.includes('signup failed') || m.includes('user already exists') || m.includes('email already')) {
+    return 'An account with that email already exists. Try signing in instead.';
+  }
+  if (m.includes('rate') && m.includes('limit')) return 'Too many attempts. Please wait a minute and try again.';
+  if (status === 404) return 'We couldn’t find what you’re looking for.';
+  if (status === 403) return 'You don’t have permission to do that.';
+  if (status === 500) return 'Something went wrong on our end. Please try again.';
+  return null;
+}
+
 /**
  * Extracts a human-readable error message from an unknown error.
- * Handles three response shapes in priority order:
- *   1. New envelope: `{ error: { code, message, requestId } }`
- *   2. Legacy:       `{ error: 'message' }`
- *   3. Axios/Error fallback
- *
- * When a `requestId` is present on the new envelope, a short reference is
- * appended in parentheses to aid log correlation.
+ * Maps known server errors and HTTP statuses to friendly strings.
  */
 export function extractError(err: unknown, fallback = 'Something went wrong'): string {
   if (axios.isAxiosError(err)) {
-    const data = err.response?.data as
-      | { error?: string | { code?: string; message?: string; requestId?: string } }
-      | undefined;
-    const raw = data?.error;
-    if (raw && typeof raw === 'object') {
-      const msg = raw.message ?? err.message ?? fallback;
-      if (raw.requestId) {
-        return `${msg} (ref: ${raw.requestId.slice(0, 8)})`;
-      }
-      return msg;
+    const status = err.response?.status;
+    const data = err.response?.data;
+
+    if (err.code === 'ERR_NETWORK' || (!err.response && err.message === 'Network Error')) {
+      return 'Couldn’t reach the server. Please check your connection and try again.';
     }
-    if (typeof raw === 'string') return raw;
+
+    let serverMsg: string | undefined;
+    let requestId: string | undefined;
+
+    if (typeof data === 'string' && data.trim()) {
+      serverMsg = data.trim();
+    } else if (data && typeof data === 'object') {
+      const env = data as { error?: string | { code?: string; message?: string; requestId?: string } };
+      const raw = env.error;
+      if (raw && typeof raw === 'object') {
+        serverMsg = raw.message;
+        requestId = raw.requestId;
+      } else if (typeof raw === 'string') {
+        serverMsg = raw;
+      }
+    }
+
+    if (serverMsg) {
+      const friendly = friendlyServerMessage(serverMsg, status) ?? serverMsg;
+      return requestId ? `${friendly} (ref: ${requestId.slice(0, 8)})` : friendly;
+    }
+
+    if (status === 401) return 'Wrong email or password.';
+    if (status === 429) return 'Too many attempts. Please wait a minute and try again.';
+    if (status && status >= 500) return 'Something went wrong on our end. Please try again.';
+
     return err.message ?? fallback;
   }
   if (err instanceof Error) return err.message;

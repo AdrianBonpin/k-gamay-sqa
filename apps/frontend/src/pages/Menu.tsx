@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo, useState } from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, Star } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getMenu } from '@/api/menu';
@@ -70,11 +70,14 @@ export function Menu() {
       <header className="mb-8 md:mb-10">
         <h1 className="font-display text-4xl md:text-5xl font-bold">Our menu</h1>
         <p className="mt-2 text-accent-charcoal/60 text-pretty max-w-xl">
-          From comfort classics to chef&apos;s specials — pick what you&apos;re in the mood for.
+          From comfort classics to chef&apos;s specials. Pick what you&apos;re in the mood for.
         </p>
       </header>
 
-      <div className="sticky top-16 md:top-20 z-20 -mx-4 px-4 md:mx-0 md:px-0 py-4 mb-6 bg-surface/80 backdrop-blur-lg border-b border-accent-charcoal/5">
+      <section
+        aria-label="Search"
+        className="sticky top-16 md:top-20 z-20 -mx-4 px-4 md:mx-0 md:px-0 py-4"
+      >
         <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:items-center">
           <label className="relative flex-1 max-w-xl" aria-label="Search menu">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-accent-charcoal/40" />
@@ -94,22 +97,32 @@ export function Menu() {
             </span>
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <CategoryChips categories={categories} active={activeCat} onChange={setCat} />
-          <button
-            type="button"
-            onClick={toggleTopSort}
-            aria-pressed={sort === 'top'}
-            className={
-              sort === 'top'
-                ? 'badge bg-brand-500 text-white border-brand-500'
-                : 'badge bg-white text-accent-charcoal border-accent-charcoal/15 hover:bg-surface-muted'
-            }
-          >
-            ⭐ Top rated
-          </button>
-        </div>
-      </div>
+      </section>
+
+      <section aria-label="Filters" className="mt-4 mb-6">
+        <CategoryChips
+          categories={categories}
+          active={activeCat}
+          onChange={setCat}
+          trailing={
+            <button
+              type="button"
+              onClick={toggleTopSort}
+              aria-pressed={sort === 'top'}
+              className={
+                'chip whitespace-nowrap ' + (sort === 'top' ? 'chip-active' : 'chip-idle')
+              }
+            >
+              <Star
+                className="h-4 w-4"
+                fill={sort === 'top' ? 'currentColor' : 'none'}
+                strokeWidth={2.2}
+              />
+              Top rated
+            </button>
+          }
+        />
+      </section>
 
       {error && (
         <div className="card p-6 bg-brand-50 border-brand-500/20 text-brand-700 mb-6" role="alert">

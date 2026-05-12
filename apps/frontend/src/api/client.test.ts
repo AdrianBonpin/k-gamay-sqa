@@ -19,11 +19,11 @@ describe('extractError', () => {
     const err = makeAxiosError({
       error: {
         code: 'VALIDATION_ERROR',
-        message: 'Invalid email',
+        message: 'Order failed validation',
         requestId: 'abcdef1234567890',
       },
     });
-    expect(extractError(err)).toBe('Invalid email (ref: abcdef12)');
+    expect(extractError(err)).toBe('Order failed validation (ref: abcdef12)');
   });
 
   it('handles new envelope without requestId (no ref appended)', () => {

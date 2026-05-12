@@ -39,8 +39,8 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] grid md:grid-cols-2">
-      <div className="flex items-center justify-center px-6 py-12 md:py-20">
+    <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 md:py-12 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <div className="flex items-center justify-center md:py-8">
         <div className="w-full max-w-md">
           <Link to="/" className="inline-flex items-center gap-2 mb-10 group">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-hero text-white shadow-glow">
@@ -101,19 +101,19 @@ export function Login() {
         </div>
       </div>
 
-      <div className="hidden md:block relative">
+      <div className="hidden md:block relative rounded-3xl overflow-hidden aspect-[4/5] max-h-[640px] shadow-lift">
         <img
           src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=1400&q=80"
           alt="Gourmet food flat-lay"
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-brand-600/70 via-brand-500/30 to-accent-mustard/40" />
-        <div className="absolute bottom-10 left-10 right-10 text-white">
-          <p className="font-display italic text-3xl leading-snug max-w-md">
+        <div className="absolute bottom-8 left-8 right-8 text-white">
+          <p className="font-display italic text-2xl lg:text-3xl leading-snug">
             &ldquo;The best burger I&apos;ve had in years. Arrived still-warm and somehow better
             than pick-up.&rdquo;
           </p>
-          <p className="mt-4 text-sm text-white/80">— Priya M. · Regular since 2024</p>
+          <p className="mt-4 text-sm text-white/80">Priya M. · Regular since 2024</p>
         </div>
       </div>
     </div>

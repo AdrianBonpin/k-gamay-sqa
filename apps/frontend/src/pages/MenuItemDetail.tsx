@@ -87,9 +87,9 @@ export function MenuItemDetail() {
           <h1 className="font-display text-4xl md:text-5xl font-bold mt-3">{item.name}</h1>
           <p className="mt-3 text-accent-charcoal/70 text-pretty">{item.description}</p>
           <div className="mt-5 flex items-center gap-3">
-            <Stars value={summary.average} size="lg" />
+            <Stars value={Number(summary.average)} size="lg" />
             <span className="font-semibold text-accent-charcoal">
-              {summary.count > 0 ? summary.average.toFixed(1) : '—'}
+              {summary.count > 0 ? Number(summary.average).toFixed(1) : 'N/A'}
             </span>
             <span className="text-sm text-accent-charcoal/60">
               ({summary.count} review{summary.count === 1 ? '' : 's'})
@@ -121,7 +121,7 @@ export function MenuItemDetail() {
           <LoadingSpinner size="sm" label="Loading reviews…" />
         ) : reviews.length === 0 ? (
           <p className="text-accent-charcoal/60 text-sm">
-            No reviews yet — be the first after your next delivery!
+            No reviews yet. Be the first after your next delivery!
           </p>
         ) : (
           <ul className="divide-y divide-accent-charcoal/5">

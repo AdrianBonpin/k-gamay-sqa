@@ -21,6 +21,8 @@ export default {
           forest: '#1F6B4A',
           cream: '#FAF7F2',
           charcoal: '#1A1A1A',
+          espresso: '#3E2A1F',
+          taupe: '#7A6857',
         },
         surface: {
           DEFAULT: '#FAF7F2',

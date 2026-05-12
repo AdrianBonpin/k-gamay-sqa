@@ -25,7 +25,7 @@ export function applyDiscountCents(cents: number, fraction: number): number {
 }
 
 export function formatMoney(cents: number): string {
-  return `$${fromCents(cents).toFixed(2)}`;
+  return `₱${fromCents(cents).toFixed(2)}`;
 }
 
 export function formatDollars(dollars: number): string {

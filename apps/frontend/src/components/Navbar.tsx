@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, LogOut, UtensilsCrossed, Menu as MenuIcon, X } from 'lucide-react';
+import {
+  ShoppingBag,
+  User,
+  LogOut,
+  UtensilsCrossed,
+  Utensils,
+  Home as HomeIcon,
+  Menu as MenuIcon,
+  X,
+} from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
 import { classNames } from '@/lib/utils';
@@ -48,15 +57,15 @@ export function Navbar() {
 
   const linkCls = ({ isActive }: { isActive: boolean }) =>
     classNames(
-      'text-sm font-semibold transition-colors hover:text-brand-600',
-      isActive ? 'text-brand-600' : 'text-accent-charcoal/70',
+      'inline-flex items-center gap-2 text-sm font-semibold transition-colors',
+      isActive ? 'text-brand-600' : 'text-accent-charcoal/65 hover:text-accent-charcoal',
     );
 
   return (
     <header
       className={classNames(
-        'sticky top-0 z-40 transition-all duration-300',
-        scrolled ? 'glass shadow-soft border-b border-accent-charcoal/5' : 'bg-transparent',
+        'sticky top-0 z-40 transition-all duration-300 bg-surface/80 backdrop-blur-lg',
+        scrolled ? 'shadow-soft border-b border-accent-charcoal/5' : 'border-b border-transparent',
       )}
     >
       <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -70,13 +79,16 @@ export function Navbar() {
 
           <nav className="hidden md:flex items-center gap-8" aria-label="Primary">
             <NavLink to="/" end className={linkCls}>
+              <HomeIcon className="h-4 w-4" strokeWidth={2.2} />
               Home
             </NavLink>
             <NavLink to="/menu" className={linkCls}>
+              <Utensils className="h-4 w-4" strokeWidth={2.2} />
               Menu
             </NavLink>
             {token && (
               <NavLink to="/orders" className={linkCls}>
+                <ShoppingBag className="h-4 w-4" strokeWidth={2.2} />
                 Orders
               </NavLink>
             )}
@@ -152,7 +164,7 @@ export function Navbar() {
             <button
               onClick={() => setMobile((v) => !v)}
               aria-label="Toggle menu"
-              className="md:hidden grid h-11 w-11 place-items-center rounded-full bg-white border border-accent-charcoal/10"
+              className="md:hidden grid h-11 w-11 place-items-center rounded-full bg-white border border-accent-charcoal/10 text-accent-charcoal"
             >
               {mobile ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
             </button>

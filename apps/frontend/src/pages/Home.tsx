@@ -4,6 +4,7 @@ import { ArrowRight, Clock, Sparkles, Star, Truck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getMenu } from '@/api/menu';
 import { useCartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
 import type { MenuItem } from '@/types';
 import { formatMoney } from '@/lib/utils';
 
@@ -38,6 +39,7 @@ const CATEGORIES = [
 export function Home() {
   const [featured, setFeatured] = useState<MenuItem[]>([]);
   const addToCart = useCartStore((s) => s.add);
+  const isLoggedIn = useAuthStore((s) => Boolean(s.token && s.user));
 
   useEffect(() => {
     getMenu()
@@ -62,22 +64,24 @@ export function Home() {
               <span className="italic">good</span>?
             </h1>
             <p className="mt-5 text-lg md:text-xl text-accent-charcoal/65 max-w-lg text-pretty">
-              Hand-picked local favorites, from crispy wood-fired pizza to late-night desserts —
-              ordered in a tap, at your door in minutes.
+              Hand-picked local favorites, from crispy wood-fired pizza to late-night desserts.
+              Ordered in a tap, at your door in minutes.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Link to="/menu" className="btn btn-primary btn-size-lg">
                 Browse the menu
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link to="/signup" className="btn btn-ghost btn-size-lg">
-                Create an account
-              </Link>
+              {!isLoggedIn && (
+                <Link to="/signup" className="btn btn-ghost btn-size-lg">
+                  Create an account
+                </Link>
+              )}
             </div>
             <div className="mt-10 grid grid-cols-3 gap-6 max-w-md">
               <Stat icon={<Clock className="h-4 w-4" />} value="30 min" label="Avg delivery" />
               <Stat icon={<Star className="h-4 w-4" />} value="4.9" label="Customer rating" />
-              <Stat icon={<Truck className="h-4 w-4" />} value="Free" label="Over $20" />
+              <Stat icon={<Truck className="h-4 w-4" />} value="Free" label="Over ₱500" />
             </div>
           </div>
 

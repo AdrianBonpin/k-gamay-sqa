@@ -30,7 +30,7 @@ export function Signup() {
       const res = await signup(email, password, name);
       if (res.token && res.user) {
         setAuth(res.token, res.user);
-        toast.success(`Welcome, ${res.user.name.split(' ')[0]}! Here's 15% off — code WELCOME`);
+        toast.success(`Welcome, ${res.user.name.split(' ')[0]}! Here's 15% off with code WELCOME`);
         navigate('/menu', { replace: true });
       } else {
         // Anti-enumeration: server returned a generic ok for a duplicate email.
@@ -47,23 +47,23 @@ export function Signup() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] grid md:grid-cols-2">
-      <div className="hidden md:block relative order-2 md:order-1">
+    <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 md:py-12 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <div className="hidden md:block relative rounded-3xl overflow-hidden aspect-[4/5] max-h-[640px] shadow-lift order-2 md:order-1">
         <img
           src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1400&q=80"
           alt="A chef plating a dish"
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-tl from-accent-charcoal/80 via-accent-charcoal/20 to-brand-500/40" />
-        <div className="absolute bottom-10 left-10 right-10 text-white">
-          <p className="font-display italic text-3xl leading-snug max-w-md">
+        <div className="absolute bottom-8 left-8 right-8 text-white">
+          <p className="font-display italic text-2xl lg:text-3xl leading-snug">
             "Signed up, got 15% off, and ate like royalty. The app is almost too easy."
           </p>
-          <p className="mt-4 text-sm text-white/80">— Marcus L. · K-Gamay member</p>
+          <p className="mt-4 text-sm text-white/80">Marcus L. · K-Gamay member</p>
         </div>
       </div>
 
-      <div className="flex items-center justify-center px-6 py-12 md:py-20 order-1 md:order-2">
+      <div className="flex items-center justify-center md:py-8 order-1 md:order-2">
         <div className="w-full max-w-md">
           <Link to="/" className="inline-flex items-center gap-2 mb-10">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-hero text-white shadow-glow">

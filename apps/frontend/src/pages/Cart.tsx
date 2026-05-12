@@ -46,7 +46,7 @@ export function Cart() {
         return;
       }
       setApplied({ code: res.code, discount: res.discount });
-      toast.success(`${res.code} applied — ${Math.round(res.discount * 100)}% off`);
+      toast.success(`${res.code} applied. ${Math.round(res.discount * 100)}% off`);
     } catch (err) {
       toast.error(extractError(err, 'Could not validate code'));
     } finally {
@@ -65,7 +65,7 @@ export function Cart() {
         <EmptyState
           icon={<ShoppingBag className="h-10 w-10" strokeWidth={2.2} />}
           title="Your cart is empty"
-          description="Start browsing and add your favorites — they'll show up here and travel with you to checkout."
+          description="Start browsing and add your favorites. They'll show up here and travel with you to checkout."
           action={
             <Link to="/menu" className="btn btn-primary btn-size-lg">
               Browse the menu <ArrowRight className="h-4 w-4" />
@@ -158,7 +158,7 @@ export function Cart() {
                   <li key={p.code}>
                     Try <span className="font-semibold text-accent-charcoal">{p.code}</span> (
                     {Math.round(p.discount * 100)}% off
-                    {p.firstOrderOnly ? ' — first order only' : ''})
+                    {p.firstOrderOnly ? ', first order only' : ''})
                   </li>
                 ))}
               </ul>

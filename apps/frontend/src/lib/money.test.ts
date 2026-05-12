@@ -37,17 +37,17 @@ describe('money', () => {
   });
 
   describe('formatMoney', () => {
-    it('formats 349 cents as $3.49', () => {
-      expect(formatMoney(349)).toBe('$3.49');
+    it('formats 349 cents as ₱3.49', () => {
+      expect(formatMoney(349)).toBe('₱3.49');
     });
 
-    it('formats 1000 cents as $10.00', () => {
-      expect(formatMoney(1000)).toBe('$10.00');
+    it('formats 1000 cents as ₱10.00', () => {
+      expect(formatMoney(1000)).toBe('₱10.00');
     });
 
     it('formatDollars goes via cents and formats', () => {
-      expect(formatDollars(3.49)).toBe('$3.49');
-      expect(formatDollars(0.1 + 0.2)).toBe('$0.30');
+      expect(formatDollars(3.49)).toBe('₱3.49');
+      expect(formatDollars(0.1 + 0.2)).toBe('₱0.30');
     });
   });
 });

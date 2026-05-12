@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Something went wrong
             </h1>
             <p className="mt-3 text-accent-charcoal/60 text-pretty">
-              We hit an unexpected snag while loading this page. Reload to try again — your cart and
+              We hit an unexpected snag while loading this page. Reload to try again. Your cart and
               session are safe.
             </p>
             {this.state.error?.message && (

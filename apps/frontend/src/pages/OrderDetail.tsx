@@ -54,11 +54,11 @@ export function OrderDetail() {
     [orderId, validId],
   );
 
-  // Live polling: refetch every 10s until the order is delivered.
+  // Live polling: refetch every 2s until the order is delivered.
   useEffect(() => {
     if (!order) return;
     if (order.status === 'delivered') return;
-    const t = setInterval(() => refetch(), 10_000);
+    const t = setInterval(() => refetch(), 2_000);
     return () => clearInterval(t);
   }, [order, refetch]);
 
@@ -204,7 +204,7 @@ export function OrderDetail() {
           </ul>
         </section>
 
-        <aside className="card p-6 h-fit space-y-4">
+        <aside className="card p-6 flex flex-col gap-4">
           <h2 className="font-display text-2xl font-bold">Total paid</h2>
           <p className="font-display text-5xl font-bold text-brand-600">
             {formatMoney(order.total)}
@@ -221,7 +221,7 @@ export function OrderDetail() {
               <p>Delivery details were submitted at checkout.</p>
             )}
           </div>
-          <Link to="/menu" className="btn btn-primary btn-size-md w-full">
+          <Link to="/menu" className="btn btn-primary btn-size-md w-full mt-auto">
             Order again
           </Link>
         </aside>
