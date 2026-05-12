@@ -5,6 +5,7 @@ export interface PlaceOrderPayload {
   items: { menuId: number; qty: number }[];
   promoCode?: string;
   delivery: DeliveryInfo;
+  paymentMethod?: string;
 }
 
 export async function placeOrder(payload: PlaceOrderPayload): Promise<PlaceOrderResponse> {

@@ -36,6 +36,7 @@ export const orders = pgTable('orders', {
   promoCode: text('promo_code'),
   discount: real('discount').default(0),
   deliveryAddressId: integer('delivery_address_id').references(() => deliveryAddresses.id),
+  paymentMethod: text('payment_method'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

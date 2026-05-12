@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, MapPin, Phone, User as UserIcon } from 'lucide-react';
+import { Home, MapPin, Phone, User as UserIcon, Banknote, CreditCard, Smartphone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { placeOrder } from '@/api/orders';
 import { useCartStore } from '@/store/cartStore';
@@ -25,6 +25,7 @@ export function Checkout() {
   const [name, setName] = useState(user?.name ?? '');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const placedRef = useRef(false);
 
@@ -36,10 +37,35 @@ export function Checkout() {
 
   const sub = subtotal();
 
+  const PAYMENT_METHODS = [
+    {
+      id: 'cod',
+      title: 'Cash on Delivery',
+      description: 'Pay when your food arrives',
+      icon: Banknote,
+    },
+    {
+      id: 'card',
+      title: 'Credit Card',
+      description: 'Mock card payment — no charge',
+      icon: CreditCard,
+    },
+    {
+      id: 'gcash',
+      title: 'GCash',
+      description: 'Mock e-wallet — no charge',
+      icon: Smartphone,
+    },
+  ];
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !address.trim() || !phone.trim()) {
       toast.error('Please fill out every field');
+      return;
+    }
+    if (!paymentMethod) {
+      toast.error('Please select a payment method');
       return;
     }
     setSubmitting(true);
@@ -47,6 +73,7 @@ export function Checkout() {
       const res = await placeOrder({
         items: items.map((it) => ({ menuId: it.menuId, qty: it.qty })),
         promoCode,
+        paymentMethod,
         delivery: {
           name: name.trim(),
           address: address.trim(),
@@ -109,10 +136,38 @@ export function Checkout() {
 
           <section className="card p-6">
             <h2 className="font-display text-2xl font-bold mb-4">Payment</h2>
-            <div className="rounded-2xl bg-surface-soft p-4 text-sm text-accent-charcoal/70">
+            <div className="grid sm:grid-cols-3 gap-3">
+              {PAYMENT_METHODS.map((pm) => {
+                const selected = paymentMethod === pm.id;
+                const Icon = pm.icon;
+                return (
+                  <button
+                    key={pm.id}
+                    type="button"
+                    onClick={() => setPaymentMethod(pm.id)}
+                    className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-4 text-center transition-all ${
+                      selected
+                        ? 'border-brand-500 bg-brand-50 shadow-sm'
+                        : 'border-accent-charcoal/10 hover:border-accent-charcoal/25 hover:bg-surface-soft'
+                    }`}
+                  >
+                    <Icon
+                      className={`h-6 w-6 ${
+                        selected ? 'text-brand-600' : 'text-accent-charcoal/40'
+                      }`}
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">{pm.title}</p>
+                      <p className="text-xs text-accent-charcoal/60 mt-0.5">{pm.description}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-4 text-xs text-accent-charcoal/50">
               This is a coursework demo. No payment is charged. Your order will be recorded and
               delivered as pending in the system.
-            </div>
+            </p>
           </section>
         </div>
 

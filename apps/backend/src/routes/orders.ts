@@ -30,6 +30,7 @@ export const ordersRoutes = new Elysia({ prefix: '/api/orders' })
               userId: user!.id,
               items: body.items,
               promoCode: body.promoCode,
+              paymentMethod: body.paymentMethod,
               delivery: body.delivery,
             });
           },
@@ -42,6 +43,7 @@ export const ordersRoutes = new Elysia({ prefix: '/api/orders' })
                 }),
               ),
               promoCode: t.Optional(t.String()),
+              paymentMethod: t.Optional(t.String()),
               delivery: t.Object({
                 name: t.String({ minLength: 1 }),
                 address: t.String({ minLength: 1 }),

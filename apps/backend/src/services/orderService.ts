@@ -62,11 +62,12 @@ interface CreateOrderInput {
   userId: string;
   items: { menuId: number; qty: number }[];
   promoCode?: string;
+  paymentMethod?: string;
   delivery: { name: string; address: string; phone: string };
 }
 
 export async function createOrder(input: CreateOrderInput) {
-  const { userId, items, promoCode, delivery } = input;
+  const { userId, items, promoCode, paymentMethod, delivery } = input;
 
   // Validate items
   if (!Array.isArray(items) || items.length === 0) {
@@ -139,6 +140,7 @@ export async function createOrder(input: CreateOrderInput) {
       promoCode: appliedPromo,
       discount: discountFraction,
       deliveryAddressId: addr.id,
+      paymentMethod: paymentMethod ?? null,
     })
     .returning();
 
@@ -178,6 +180,7 @@ export async function createOrder(input: CreateOrderInput) {
     createdAt: order.createdAt.toISOString(),
     promoCode: order.promoCode ?? null,
     discount: order.discount ?? 0,
+    paymentMethod: order.paymentMethod ?? null,
     items: itemsResult.map((it) => ({
       id: it.id,
       menuId: it.menuId,
@@ -240,6 +243,7 @@ export async function listOrders(userId: string) {
       createdAt: order.createdAt.toISOString(),
       promoCode: order.promoCode ?? null,
       discount: order.discount ?? 0,
+      paymentMethod: order.paymentMethod ?? null,
       items: items.map((it) => ({
         id: it.id,
         menuId: it.menuId,
@@ -303,6 +307,7 @@ export async function getOrder(userId: string, orderId: number) {
     createdAt: order.createdAt.toISOString(),
     promoCode: order.promoCode ?? null,
     discount: order.discount ?? 0,
+    paymentMethod: order.paymentMethod ?? null,
     items: items.map((it) => ({
       id: it.id,
       menuId: it.menuId,

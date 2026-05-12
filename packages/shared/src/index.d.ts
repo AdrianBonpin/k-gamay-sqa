@@ -71,6 +71,7 @@ export interface Order {
   items: OrderItem[];
   promoCode?: string | null;
   discount?: number;
+  paymentMethod?: string | null;
   delivery?: DeliveryInfo | null;
 }
 
@@ -111,6 +112,7 @@ export interface PlaceOrderPayload {
   items: { menuId: number; qty: number }[];
   promoCode?: string;
   delivery: DeliveryInfo;
+  paymentMethod?: string;
 }
 
 export interface PlaceOrderResponse {
@@ -122,6 +124,7 @@ export interface PlaceOrderResponse {
   createdAt: string;
   promoCode: string | null;
   discount: number;
+  paymentMethod?: string | null;
   delivery?: DeliveryInfo | null;
 }
 
