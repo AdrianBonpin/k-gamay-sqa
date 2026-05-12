@@ -1,14 +1,62 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { getDb, schema } from '../db';
 import { lookupPromo } from './promoService';
 import { toCents, fromCents, applyDiscountCents } from '../lib/money';
 import { HttpError } from '../lib/errors';
+import { config } from '../config';
 
 const VALID_STATUSES = ['pending', 'in_progress', 'delivered'] as const;
 const NEXT_STATUS: Record<string, string> = {
   pending: 'in_progress',
   in_progress: 'delivered',
 };
+
+const AUTO_ADVANCE_STEP_MS = 5_000;
+
+function scheduleAutoAdvance(orderId: number, createdAt: Date = new Date()) {
+  if (!config.autoAdvanceOrders) return;
+  const db = getDb();
+  const ageMs = Date.now() - createdAt.getTime();
+
+  const advance = (from: string, to: string) => async () => {
+    try {
+      await db
+        .update(schema.orders)
+        .set({ status: to })
+        .where(and(eq(schema.orders.id, orderId), eq(schema.orders.status, from)));
+    } catch (err) {
+      console.error(`auto-advance ${orderId} ${from}->${to} failed:`, err);
+    }
+  };
+
+  const delay1 = Math.max(0, AUTO_ADVANCE_STEP_MS - ageMs);
+  const delay2 = Math.max(0, AUTO_ADVANCE_STEP_MS * 2 - ageMs);
+
+  setTimeout(advance('pending', 'in_progress'), delay1).unref();
+  setTimeout(advance('in_progress', 'delivered'), delay2).unref();
+}
+
+/**
+ * On startup, catch up any orders still pending/in_progress:
+ * - Fully aged orders (older than the second tick) → set to 'delivered' immediately.
+ * - Mid-cycle orders → schedule the remaining timer.
+ */
+export async function resumeAutoAdvance() {
+  if (!config.autoAdvanceOrders) return;
+  const db = getDb();
+  // Age check in SQL avoids Node/pg timezone parsing for `timestamp without tz`.
+  const totalMs = AUTO_ADVANCE_STEP_MS * 2;
+  const finalized = await db.execute(
+    sql`update orders
+        set status = 'delivered'
+        where status in ('pending', 'in_progress')
+          and now() - created_at > make_interval(secs => ${totalMs / 1000})
+        returning id`,
+  );
+  if (finalized.rowCount && finalized.rowCount > 0) {
+    console.log(`[auto-advance] finalized ${finalized.rowCount} stuck orders on startup`);
+  }
+}
 
 interface CreateOrderInput {
   userId: string;
@@ -119,6 +167,8 @@ export async function createOrder(input: CreateOrderInput) {
     .from(schema.orderItems)
     .innerJoin(schema.menuItems, eq(schema.orderItems.menuId, schema.menuItems.id))
     .where(eq(schema.orderItems.orderId, order.id));
+
+  scheduleAutoAdvance(order.id);
 
   return {
     orderId: order.id,

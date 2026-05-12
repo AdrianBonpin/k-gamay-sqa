@@ -28,7 +28,7 @@ async function getRatingSummariesForMenuIds(ids: number[]) {
   const rows = await db
     .select({
       menuId: schema.ratings.menuId,
-      average: sql<number>`round(avg(${schema.ratings.stars})::numeric, 1)`,
+      average: sql<number>`(round(avg(${schema.ratings.stars})::numeric, 1))::float8`,
       count: sql<number>`count(*)::int`,
     })
     .from(schema.ratings)
@@ -42,8 +42,8 @@ async function getRatingSummariesForMenuIds(ids: number[]) {
   for (const r of rows) {
     map.set(r.menuId, {
       menuId: r.menuId,
-      average: r.average ?? 0,
-      count: r.count ?? 0,
+      average: Number(r.average ?? 0),
+      count: Number(r.count ?? 0),
     });
   }
   return map;

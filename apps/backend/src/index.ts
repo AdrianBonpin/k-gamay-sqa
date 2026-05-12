@@ -1,12 +1,14 @@
 import { createApp } from './app';
 import { getDb, closeDb } from './db';
 import { seed } from './seed';
+import { resumeAutoAdvance } from './services/orderService';
 import { config } from './config';
 
 // Initialize DB and run migrations + seed on startup
 try {
   getDb();
   await seed();
+  await resumeAutoAdvance();
   console.log('Database initialized and seeded');
 } catch (err) {
   console.error('Database initialization failed:', err);

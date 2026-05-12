@@ -115,13 +115,17 @@ export async function getRatingSummary(menuId: number) {
   const db = getDb();
   const [row] = await db
     .select({
-      average: sql<number>`coalesce(round(avg(${schema.ratings.stars})::numeric, 1), 0)`,
+      average: sql<number>`(coalesce(round(avg(${schema.ratings.stars})::numeric, 1), 0))::float8`,
       count: sql<number>`count(*)::int`,
     })
     .from(schema.ratings)
     .where(eq(schema.ratings.menuId, menuId));
 
-  return { menuId, average: row?.average ?? 0, count: row?.count ?? 0 };
+  return {
+    menuId,
+    average: Number(row?.average ?? 0),
+    count: Number(row?.count ?? 0),
+  };
 }
 
 export async function getMyRating(userId: string, menuId: number) {
