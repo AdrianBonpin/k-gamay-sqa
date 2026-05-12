@@ -20,7 +20,9 @@
     "format": "prettier --write '**/*.{ts,tsx,js,json,md,css,html}'",
     "db:generate": "bun run --filter food-delivery-backend db:generate",
     "db:migrate": "bun run --filter food-delivery-backend db:migrate",
-    "db:push": "bun run --filter food-delivery-backend db:push"
+    "db:push": "bun run --filter food-delivery-backend db:push",
+    "db:wipe": "bun run scripts/db-wipe.ts",
+    "auth:promote": "bun run scripts/promote.ts"
   },
   "devDependencies": {
     "prettier": "^3.3.3"
