@@ -13,10 +13,6 @@ export const config = {
   get isProd() { return this.env === 'production'; },
   get isTest() { return this.env === 'test'; },
   port: Number(process.env.PORT) || 4000,
-  jwtSecret: process.env.JWT_SECRET || (process.env.NODE_ENV === 'production'
-    ? (() => { throw new Error('JWT_SECRET must be set in production'); })()
-    : 'dev-only-insecure-secret-change-me'),
-  bcryptCost: Number(process.env.BCRYPT_COST) || 10,
   bodyLimit: process.env.BODY_LIMIT || '20kb',
   corsOrigins: parseList(process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:4173'),
   autoAdvanceOrders: parseBool(process.env.AUTO_ADVANCE_ORDERS, false),

@@ -10,6 +10,7 @@ import { ratingsRoutes } from './routes/ratings';
 import { globalRateLimit, authRateLimit } from './middleware/rateLimit';
 import { requestIdPlugin } from './middleware/requestId';
 import { HttpError } from './lib/errors';
+import { serveFrontend } from './middleware/staticFiles';
 
 export function createApp() {
   return new Elysia()
@@ -38,6 +39,8 @@ export function createApp() {
     .use(ordersRoutes)
     .use(promoRoutes)
     .use(ratingsRoutes)
+    // In production, serve the built frontend SPA from ../frontend/dist
+    .use(serveFrontend)
     // 404
     .all('*', ({ set }) => {
       set.status = 404;

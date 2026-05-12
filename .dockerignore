@@ -1,0 +1,42 @@
+# Dependencies (installed fresh in Docker)
+node_modules/
+
+# Build output (built in Docker)
+apps/frontend/dist/
+
+# Environment files (never in the image)
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.gitignore
+
+# IDE / Editor
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+
+# Pi agent artifacts
+.pi/
+
+# Documentation (keep docs light)
+DOCS/
+
+# Misc
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
