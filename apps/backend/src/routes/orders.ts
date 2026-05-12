@@ -1,4 +1,5 @@
 import { Elysia, t } from 'elysia';
+import { HttpError } from '../lib/errors';
 import { auth } from '../auth';
 import {
   createOrder,
@@ -60,12 +61,20 @@ export const ordersRoutes = new Elysia({ prefix: '/api/orders' })
           return listOrders(user!.id);
         })
         .get('/:id', async ({ params, user }) => {
-          return getOrder(user!.id, String(params.id));
+          const orderId = params.id;
+          if (!orderId || typeof orderId !== 'string') {
+            throw new HttpError(400, 'ORDER_ID_INVALID', 'Invalid order id');
+          }
+          return getOrder(user!.id, orderId);
         })
         .patch(
           '/:id/status',
           async ({ params, body, user }) => {
-            return updateOrderStatus(user!.id, String(params.id), body.status);
+            const orderId = params.id;
+            if (!orderId || typeof orderId !== 'string') {
+              throw new HttpError(400, 'ORDER_ID_INVALID', 'Invalid order id');
+            }
+            return updateOrderStatus(user!.id, orderId, body.status);
           },
           {
             body: t.Object({
