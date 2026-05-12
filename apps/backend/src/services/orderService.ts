@@ -82,6 +82,18 @@ export async function createOrder(input: CreateOrderInput) {
   if (!delivery.address?.trim()) throw new HttpError(400, 'DELIVERY_ADDRESS_REQUIRED', 'Delivery address is required');
   if (!delivery.phone?.trim()) throw new HttpError(400, 'DELIVERY_PHONE_REQUIRED', 'Delivery phone is required');
 
+  // Validate payment method (server-side allowlist — frontend UI selection is not a security boundary)
+  const ALLOWED_PAYMENT_METHODS = ['cod', 'card', 'gcash'] as const;
+  if (paymentMethod !== undefined && paymentMethod !== null && paymentMethod !== '') {
+    if (!ALLOWED_PAYMENT_METHODS.includes(paymentMethod as any)) {
+      throw new HttpError(
+        400,
+        'INVALID_PAYMENT_METHOD',
+        `Payment method must be one of: ${ALLOWED_PAYMENT_METHODS.join(', ')}`,
+      );
+    }
+  }
+
   const db = getDb();
 
   // Check promo
