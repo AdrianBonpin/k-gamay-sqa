@@ -7,6 +7,7 @@ import { menuRoutes } from './routes/menu';
 import { ordersRoutes } from './routes/orders';
 import { promoRoutes } from './routes/promo';
 import { ratingsRoutes } from './routes/ratings';
+import { adminAuthRoutes } from './routes/admin-auth';
 import { manageRoutes } from './routes/manage';
 import { globalRateLimit, authRateLimit } from './middleware/rateLimit';
 import { requestIdPlugin } from './middleware/requestId';
@@ -40,8 +41,10 @@ export function createApp() {
     .use(ordersRoutes)
     .use(promoRoutes)
     .use(ratingsRoutes)
+    // Admin login (role verification)
+    .use(adminAuthRoutes)   // /api/admin/login
     // Management panel
-    .use(manageRoutes)
+    .use(manageRoutes)      // /api/manage (admin guard applies internally)
     // Catch-all: try SPA frontend, then 404
     .all('*', async ({ path, set }) => {
       const response = await tryServeFrontend(path);
