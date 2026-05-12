@@ -263,9 +263,20 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
   .get('/orders', async ({ query }) => {
     const db = getDb();
     const status = query.status as string | undefined;
+    const pageLimit = Math.min(Math.max(Number(query.limit) || 50, 1), 200);
+    const pageOffset = Math.max(Number(query.offset) || 0, 0);
+
+    const statusFilter = status && ['pending', 'in_progress', 'delivered'].includes(status)
+      ? eq(schema.orders.status, status)
+      : undefined;
+
+    const [totalRow] = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(schema.orders)
+      .where(statusFilter);
 
     let orderRows;
-    if (status && ['pending', 'in_progress', 'delivered'].includes(status)) {
+    if (statusFilter) {
       orderRows = await db
         .select({
           id: schema.orders.id,
@@ -281,8 +292,10 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
         })
         .from(schema.orders)
         .innerJoin(schema.user, eq(schema.orders.userId, schema.user.id))
-        .where(eq(schema.orders.status, status))
-        .orderBy(desc(schema.orders.createdAt));
+        .where(statusFilter)
+        .orderBy(desc(schema.orders.createdAt))
+        .limit(pageLimit)
+        .offset(pageOffset);
     } else {
       orderRows = await db
         .select({
@@ -299,7 +312,9 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
         })
         .from(schema.orders)
         .innerJoin(schema.user, eq(schema.orders.userId, schema.user.id))
-        .orderBy(desc(schema.orders.createdAt));
+        .orderBy(desc(schema.orders.createdAt))
+        .limit(pageLimit)
+        .offset(pageOffset);
     }
 
     // Collect all order IDs and delivery address IDs
@@ -372,7 +387,12 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
       };
     });
 
-    return enriched;
+    return {
+      orders: enriched,
+      total: Number(totalRow.n),
+      limit: pageLimit,
+      offset: pageOffset,
+    };
   })
 
   // Get single order (admin — any user)

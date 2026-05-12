@@ -162,13 +162,24 @@ export async function deleteUser(id: number): Promise<{ ok: boolean; deleted: nu
 // Orders
 // ---------------------------------------------------------------------------
 
+export interface ManageOrdersResponse {
+  orders: ManageOrder[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export async function listOrders(
   status?: string,
-): Promise<ManageOrder[]> {
-  const params: Record<string, string> = {};
+  limit?: number,
+  offset?: number,
+): Promise<ManageOrdersResponse> {
+  const params: Record<string, string | number> = {};
   if (status && ['pending', 'in_progress', 'delivered'].includes(status)) {
     params.status = status;
   }
+  if (limit !== undefined) params.limit = limit;
+  if (offset !== undefined) params.offset = offset;
   const { data } = await manageApi.get('/api/manage/orders', { params });
   return data;
 }
