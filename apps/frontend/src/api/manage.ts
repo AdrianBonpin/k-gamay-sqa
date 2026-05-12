@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { extractError } from './client';
+import { useAdminStore } from '@/store/adminStore';
 
 const manageApi = axios.create({
   baseURL: '',
@@ -9,6 +10,11 @@ const manageApi = axios.create({
 
 manageApi.interceptors.request.use((config) => {
   config.headers = config.headers ?? {};
+  // Attach admin store token if available
+  const adminToken = useAdminStore.getState().token;
+  if (adminToken) {
+    config.headers.Authorization = `Bearer ${adminToken}`;
+  }
   if (!config.headers['x-request-id']) {
     config.headers['x-request-id'] = uuidv4();
   }
