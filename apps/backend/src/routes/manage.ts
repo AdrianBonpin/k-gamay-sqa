@@ -119,20 +119,26 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
       .from(schema.user)
       .orderBy(desc(schema.user.createdAt));
 
-    // Attach order counts per user
-    const enriched = await Promise.all(
-      users.map(async (u) => {
-        const [row] = await db
-          .select({ n: sql<number>`count(*)::int` })
+    // Batch-load order counts for all users
+    const userIds = users.map((u) => u.id);
+    const orderCounts = userIds.length > 0
+      ? await db
+          .select({
+            userId: schema.orders.userId,
+            n: sql<number>`count(*)::int`,
+          })
           .from(schema.orders)
-          .where(eq(schema.orders.userId, u.id));
-        return {
-          ...u,
-          createdAt: u.createdAt.toISOString(),
-          orderCount: Number(row.n),
-        };
-      }),
-    );
+          .where(inArray(schema.orders.userId, userIds))
+          .groupBy(schema.orders.userId)
+      : [];
+
+    const countMap = new Map(orderCounts.map((r) => [r.userId, Number(r.n)]));
+
+    const enriched = users.map((u) => ({
+      ...u,
+      createdAt: u.createdAt.toISOString(),
+      orderCount: countMap.get(u.id) ?? 0,
+    }));
 
     return enriched;
   })
@@ -661,22 +667,27 @@ export const manageRoutes = new Elysia({ prefix: '/api/manage' })
       .from(schema.promos)
       .orderBy(asc(schema.promos.code));
 
-    // Attach usage count per promo
-    const enriched = await Promise.all(
-      rows.map(async (p) => {
-        const [row] = await db
-          .select({ n: sql<number>`count(*)::int` })
+    // Batch-load usage counts for all promos
+    const promoCodes = rows.map((p) => p.code);
+    const usageCounts = promoCodes.length > 0
+      ? await db
+          .select({
+            promoCode: schema.orders.promoCode,
+            n: sql<number>`count(*)::int`,
+          })
           .from(schema.orders)
-          .where(eq(schema.orders.promoCode, p.code));
+          .where(inArray(schema.orders.promoCode, promoCodes))
+          .groupBy(schema.orders.promoCode)
+      : [];
 
-        return {
-          ...p,
-          expiresAt: p.expiresAt?.toISOString() ?? null,
-          firstOrderOnly: Boolean(p.firstOrderOnly),
-          useCount: Number(row.n),
-        };
-      }),
-    );
+    const usageMap = new Map(usageCounts.map((r) => [r.promoCode, Number(r.n)]));
+
+    const enriched = rows.map((p) => ({
+      ...p,
+      expiresAt: p.expiresAt?.toISOString() ?? null,
+      firstOrderOnly: Boolean(p.firstOrderOnly),
+      useCount: usageMap.get(p.code) ?? 0,
+    }));
 
     return enriched;
   })
