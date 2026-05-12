@@ -11,11 +11,14 @@ import { adminAuthRoutes } from './routes/admin-auth';
 import { manageRoutes } from './routes/manage';
 import { globalRateLimit, authRateLimit } from './middleware/rateLimit';
 import { requestIdPlugin } from './middleware/requestId';
+import { securityHeaders } from './middleware/securityHeaders';
 import { HttpError } from './lib/errors';
 import { tryServeFrontend } from './middleware/staticFiles';
 
 export function createApp() {
   return new Elysia()
+    // Security headers (first — before anything else)
+    .use(securityHeaders)
     // Request ID
     .use(requestIdPlugin)
     // CORS
