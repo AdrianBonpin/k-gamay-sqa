@@ -17,10 +17,6 @@ export default defineConfig({
         target: process.env.VITE_API_PROXY ?? 'http://localhost:4000',
         changeOrigin: true,
       },
-      '/manage': {
-        target: process.env.VITE_API_PROXY ?? 'http://localhost:4000',
-        changeOrigin: true,
-      },
     },
   },
   test: {

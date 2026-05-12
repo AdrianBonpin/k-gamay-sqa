@@ -43,7 +43,7 @@ async function ratingSummariesForMenuIds(ids: number[]): Promise<Map<number, Rat
 // Routes
 // ---------------------------------------------------------------------------
 
-export const manageRoutes = new Elysia({ prefix: '/manage' })
+export const manageRoutes = new Elysia({ prefix: '/api/manage' })
 
       // ═══════════════════════════════════════════════════════════════════
       // DASHBOARD

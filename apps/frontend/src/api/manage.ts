@@ -2,9 +2,6 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { extractError } from './client';
 
-// Manage routes live at /manage (not /api/manage).
-// Use bare relative paths so they work regardless of VITE_API_BASE_URL.
-// Always use empty baseURL — manage routes live at /manage, not /api/manage
 const manageApi = axios.create({
   baseURL: '',
   headers: { 'Content-Type': 'application/json' },
@@ -132,7 +129,7 @@ export { extractError };
 // ---------------------------------------------------------------------------
 
 export async function getDashboard(): Promise<{ ok: boolean; stats: DashboardStats }> {
-  const { data } = await manageApi.get('/manage');
+  const { data } = await manageApi.get('/api/manage');
   return data;
 }
 
@@ -146,12 +143,12 @@ export async function listUsers(): Promise<ManageUser[]> {
 }
 
 export async function getUser(id: number): Promise<ManageUserDetail> {
-  const { data } = await manageApi.get(`/manage/users/${id}`);
+  const { data } = await manageApi.get(`/api/manage/users/${id}`);
   return data;
 }
 
 export async function deleteUser(id: number): Promise<{ ok: boolean; deleted: number }> {
-  const { data } = await manageApi.delete(`/manage/users/${id}`);
+  const { data } = await manageApi.delete(`/api/manage/users/${id}`);
   return data;
 }
 
@@ -171,7 +168,7 @@ export async function listOrders(
 }
 
 export async function getOrder(id: number): Promise<ManageOrder> {
-  const { data } = await manageApi.get(`/manage/orders/${id}`);
+  const { data } = await manageApi.get(`/api/manage/orders/${id}`);
   return data;
 }
 
@@ -179,7 +176,7 @@ export async function updateOrderStatus(
   id: number,
   status: string,
 ): Promise<ManageOrder & { previousStatus: string }> {
-  const { data } = await manageApi.patch(`/manage/orders/${id}/status`, { status });
+  const { data } = await manageApi.patch(`/api/manage/orders/${id}/status`, { status });
   return data;
 }
 
@@ -203,12 +200,12 @@ export async function updateMenuItem(
   id: number,
   updates: Partial<{ name: string; description: string; price: number; imageUrl: string; category: string }>,
 ): Promise<ManageMenuItem> {
-  const { data } = await manageApi.patch(`/manage/menu/${id}`, updates);
+  const { data } = await manageApi.patch(`/api/manage/menu/${id}`, updates);
   return data;
 }
 
 export async function deleteMenuItem(id: number): Promise<{ ok: boolean; deleted: number }> {
-  const { data } = await manageApi.delete(`/manage/menu/${id}`);
+  const { data } = await manageApi.delete(`/api/manage/menu/${id}`);
   return data;
 }
 
@@ -237,7 +234,7 @@ export async function createPromo(
 }
 
 export async function deletePromo(code: string): Promise<{ ok: boolean; deleted: string }> {
-  const { data } = await manageApi.delete(`/manage/promos/${encodeURIComponent(code)}`);
+  const { data } = await manageApi.delete(`/api/manage/promos/${encodeURIComponent(code)}`);
   return data;
 }
 
@@ -257,6 +254,6 @@ export async function listRatings(
 }
 
 export async function deleteRating(id: number): Promise<{ ok: boolean; deleted: number }> {
-  const { data } = await manageApi.delete(`/manage/ratings/${id}`);
+  const { data } = await manageApi.delete(`/api/manage/ratings/${id}`);
   return data;
 }
