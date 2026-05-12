@@ -19,8 +19,8 @@ export function AdminLogin() {
     setErr(null);
     setLoading(true);
     try {
-      const { token, user } = await adminLogin(email, password);
-      setAdminAuth(token, user);
+      const { user } = await adminLogin(email, password);
+      setAdminAuth(user);
       toast.success(`Welcome, ${user.name}`);
       navigate('/admin', { replace: true });
     } catch (error: any) {
