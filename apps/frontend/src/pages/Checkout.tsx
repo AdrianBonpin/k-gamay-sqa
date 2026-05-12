@@ -107,6 +107,7 @@ export function Checkout() {
                 label="Recipient name"
                 name="name"
                 required
+                maxLength={200}
                 leftIcon={<UserIcon className="h-4 w-4" />}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -116,6 +117,7 @@ export function Checkout() {
                 label="Delivery address"
                 name="address"
                 required
+                maxLength={500}
                 leftIcon={<MapPin className="h-4 w-4" />}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
@@ -126,6 +128,7 @@ export function Checkout() {
                 type="tel"
                 name="phone"
                 required
+                maxLength={20}
                 leftIcon={<Phone className="h-4 w-4" />}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
